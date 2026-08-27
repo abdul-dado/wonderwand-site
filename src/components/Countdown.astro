@@ -1,0 +1,84 @@
+---
+import { useTranslations, type Lang } from '@/i18n';
+import { site } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+
+const units = [
+  { key: 'days', label: t('countdown.days') },
+  { key: 'hours', label: t('countdown.hours') },
+  { key: 'minutes', label: t('countdown.minutes') },
+  { key: 'seconds', label: t('countdown.seconds') },
+];
+---
+
+<div
+  class="countdown mx-auto w-full max-w-md"
+  data-target={site.event.startsAt}
+  data-live-label={t('countdown.live')}
+>
+  <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-cream/70">
+    {t('countdown.title')}
+  </p>
+  <div class="grid grid-cols-4 gap-2 sm:gap-3">
+    {
+      units.map((u) => (
+        <div class="rounded-2xl bg-white/10 px-2 py-3 backdrop-blur">
+          <div
+            class="font-display text-2xl font-extrabold tabular-nums sm:text-4xl"
+            data-unit={u.key}
+          >
+            --
+          </div>
+          <div class="mt-1 text-[11px] font-semibold text-cream/70 sm:text-xs">
+            {u.label}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+  <p class="countdown-live mt-3 hidden text-lg font-extrabold text-star"></p>
+</div>
+
+<script>
+  const pad = (n: number) => String(n).padStart(2, '0');
+
+  document.querySelectorAll<HTMLElement>('.countdown').forEach((el) => {
+    const target = new Date(el.dataset.target || '').getTime();
+    if (Number.isNaN(target)) return;
+
+    const grid = el.querySelector<HTMLElement>('.grid');
+    const liveEl = el.querySelector<HTMLElement>('.countdown-live');
+    const fields = {
+      days: el.querySelector<HTMLElement>('[data-unit="days"]'),
+      hours: el.querySelector<HTMLElement>('[data-unit="hours"]'),
+      minutes: el.querySelector<HTMLElement>('[data-unit="minutes"]'),
+      seconds: el.querySelector<HTMLElement>('[data-unit="seconds"]'),
+    };
+
+    const tick = () => {
+      const diff = target - Date.now();
+      if (diff <= 0) {
+        grid?.classList.add('hidden');
+        if (liveEl) {
+          liveEl.textContent = el.dataset.liveLabel || '';
+          liveEl.classList.remove('hidden');
+        }
+        clearInterval(timer);
+        return;
+      }
+      const s = Math.floor(diff / 1000);
+      if (fields.days) fields.days.textContent = String(Math.floor(s / 86400));
+      if (fields.hours) fields.hours.textContent = pad(Math.floor((s % 86400) / 3600));
+      if (fields.minutes) fields.minutes.textContent = pad(Math.floor((s % 3600) / 60));
+      if (fields.seconds) fields.seconds.textContent = pad(s % 60);
+    };
+
+    tick();
+    const timer = setInterval(tick, 1000);
+  });
+</script>

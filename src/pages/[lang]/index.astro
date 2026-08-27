@@ -1,0 +1,64 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import AnnouncementBar from '@/components/AnnouncementBar.astro';
+import Header from '@/components/Header.astro';
+import Hero from '@/components/Hero.astro';
+import About from '@/components/About.astro';
+import EventDetails from '@/components/EventDetails.astro';
+import Activities from '@/components/Activities.astro';
+import BookingForm from '@/components/BookingForm.astro';
+import Faq from '@/components/Faq.astro';
+import Footer from '@/components/Footer.astro';
+import StickyCta from '@/components/StickyCta.astro';
+import { locales, type Lang } from '@/i18n';
+import { site, tx } from '@/data/site';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const lang = Astro.params.lang as Lang;
+
+const eventLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: tx(site.seo.title, lang),
+  startDate: site.event.startsAt,
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  description: tx(site.seo.description, lang),
+  location: {
+    '@type': 'Place',
+    name: tx(site.event.venueName, lang),
+    address: tx(site.event.address, lang),
+  },
+  organizer: {
+    '@type': 'Organization',
+    name: 'Wonder Wand',
+    url: 'https://wonderwand.org',
+  },
+  image: [new URL(site.seo.ogImage, Astro.site).href],
+};
+---
+
+<BaseLayout lang={lang} path="/">
+  <script
+    slot="head"
+    type="application/ld+json"
+    set:html={JSON.stringify(eventLd)}
+    is:inline
+  />
+
+  <AnnouncementBar lang={lang} />
+  <Header lang={lang} />
+  <main>
+    <Hero lang={lang} />
+    <About lang={lang} />
+    <EventDetails lang={lang} />
+    <Activities lang={lang} />
+    <BookingForm lang={lang} />
+    <Faq lang={lang} />
+  </main>
+  <Footer lang={lang} />
+  <StickyCta lang={lang} />
+</BaseLayout>

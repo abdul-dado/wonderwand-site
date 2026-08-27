@@ -1,0 +1,21 @@
+---
+import { type Lang } from '@/i18n';
+import { site, tx } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const a = site.announcement;
+---
+
+{
+  a.enabled && tx(a.text, lang).trim() && (
+    <a
+      href={a.href}
+      class="block bg-grape-700 px-4 py-2 text-center text-sm font-semibold text-cream hover:bg-grape-600"
+    >
+      {tx(a.text, lang)}
+    </a>
+  )
+}

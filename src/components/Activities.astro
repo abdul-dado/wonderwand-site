@@ -1,0 +1,39 @@
+---
+import { type Lang } from '@/i18n';
+import { site, tx } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+---
+
+<section id="activities" class="mx-auto max-w-5xl scroll-mt-24 px-4 py-16">
+  <h2 class="text-2xl font-extrabold text-ink sm:text-3xl">
+    {lang === 'ar' ? 'ماذا يحدث في الحدث؟' : "What's happening at the event?"}
+  </h2>
+
+  <div class="mt-8 grid gap-4 sm:grid-cols-2">
+    {
+      site.activities.map((a) => (
+        <div class="rounded-2xl border border-grape-100 bg-white p-6 shadow-sm">
+          <div class="text-3xl" aria-hidden="true">
+            {a.emoji}
+          </div>
+          <h3 class="mt-3 font-display text-lg font-bold text-ink">{tx(a.title, lang)}</h3>
+          <p class="mt-1 text-ink/70">{tx(a.description, lang)}</p>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-8 rounded-2xl bg-grape-900 p-6 text-cream">
+    <h3 class="font-display text-lg font-bold">
+      {lang === 'ar' ? 'الجوائز' : 'Prizes'}
+    </h3>
+    <ul class="mt-2 space-y-1 text-cream/85">
+      {site.prizes.map((p) => <li>🏆 {tx(p.title, lang)} — {tx(p.description, lang)}</li>)}
+    </ul>
+    <p class="mt-3 text-sm text-cream/60">{tx(site.prizesNote, lang)}</p>
+  </div>
+</section>

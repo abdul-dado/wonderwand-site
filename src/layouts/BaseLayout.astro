@@ -1,0 +1,142 @@
+---
+import '@fontsource/baloo-bhaijaan-2/400.css';
+import '@fontsource/baloo-bhaijaan-2/600.css';
+import '@fontsource/baloo-bhaijaan-2/700.css';
+import '@fontsource/baloo-bhaijaan-2/800.css';
+import '@fontsource/tajawal/400.css';
+import '@fontsource/tajawal/500.css';
+import '@fontsource/tajawal/700.css';
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/600.css';
+import '@fontsource/nunito/700.css';
+import '@fontsource/nunito/800.css';
+import '@/styles/global.css';
+
+import { dir, locales, localizedPath, type Lang } from '@/i18n';
+import { site, tx } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+  /** In-locale path without the language prefix, e.g. '/' or '/success/'. */
+  path?: string;
+  title?: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { lang, path = '/', title, description, noindex = false } = Astro.props;
+
+const siteOrigin = Astro.site?.origin ?? 'https://wonderwand.org';
+const pageTitle = title ?? tx(site.seo.title, lang);
+const pageDesc = description ?? tx(site.seo.description, lang);
+const canonical = new URL(localizedPath(lang, path), siteOrigin).href;
+const ogImage = new URL(site.seo.ogImage, siteOrigin).href;
+
+const alternates = locales.map((l) => ({
+  hreflang: l,
+  href: new URL(localizedPath(l, path), siteOrigin).href,
+}));
+
+const { ga4Id, metaPixelId } = site.analytics;
+---
+
+<!doctype html>
+<html lang={lang} dir={dir(lang)}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#6531d0" />
+
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDesc} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+
+    {
+      alternates.map((a) => (
+        <link rel="alternate" hreflang={a.hreflang} href={a.href} />
+      ))
+    }
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href={new URL(localizedPath('ar', path), siteOrigin).href}
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Wonder Wand" />
+    <meta property="og:locale" content={lang === 'ar' ? 'ar_JO' : 'en_US'} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDesc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={pageDesc} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {
+      ga4Id && (
+        <>
+          <script
+            is:inline
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}
+          />
+          <script is:inline define:vars={{ ga4Id }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', ga4Id);
+          </script>
+        </>
+      )
+    }
+    {
+      metaPixelId && (
+        <script is:inline define:vars={{ metaPixelId }}>
+          !(function (f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function () {
+              n.callMethod
+                ? n.callMethod.apply(n, arguments)
+                : n.queue.push(arguments);
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s);
+          })(
+            window,
+            document,
+            'script',
+            'https://connect.facebook.net/en_US/fbevents.js',
+          );
+          fbq('init', metaPixelId);
+          fbq('track', 'PageView');
+        </script>
+      )
+    }
+
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+    <script is:inline define:vars={{ lang }}>
+      try {
+        localStorage.setItem('ww-lang', lang);
+      } catch (e) {}
+    </script>
+  </body>
+</html>

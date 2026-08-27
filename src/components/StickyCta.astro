@@ -1,0 +1,20 @@
+---
+import { useTranslations, type Lang } from '@/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<div
+  class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-3 sm:hidden"
+>
+  <a
+    href="#book"
+    class="pointer-events-auto w-full max-w-sm rounded-full bg-grape-600 px-6 py-3.5 text-center text-base font-extrabold text-cream shadow-glow"
+  >
+    {t('cta.book')}
+  </a>
+</div>

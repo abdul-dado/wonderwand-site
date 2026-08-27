@@ -1,0 +1,43 @@
+---
+import { site } from '@/data/site';
+
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+
+const s = site.social;
+const links = [
+  { key: 'youtube', href: s.youtube, label: 'YouTube' },
+  { key: 'instagram', href: s.instagram, label: 'Instagram' },
+  { key: 'tiktok', href: s.tiktok, label: 'TikTok' },
+  { key: 'facebook', href: s.facebook, label: 'Facebook' },
+  {
+    key: 'whatsapp',
+    href: s.whatsapp,
+    label: 'WhatsApp',
+  },
+  {
+    key: 'email',
+    href: s.email ? `mailto:${s.email}` : '',
+    label: 'Email',
+  },
+].filter((l) => l.href);
+---
+
+<ul class:list={['flex flex-wrap items-center gap-2', className]}>
+  {
+    links.map((l) => (
+      <li>
+        <a
+          href={l.href}
+          target={l.key === 'email' ? undefined : '_blank'}
+          rel="noopener"
+          class="inline-flex items-center rounded-full border border-white/25 px-3 py-1.5 text-sm font-semibold text-cream/90 hover:bg-white/10"
+        >
+          {l.label}
+        </a>
+      </li>
+    ))
+  }
+</ul>

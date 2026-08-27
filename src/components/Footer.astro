@@ -1,0 +1,27 @@
+---
+import { useTranslations, type Lang } from '@/i18n';
+import { site } from '@/data/site';
+import SocialLinks from './SocialLinks.astro';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const year = new Date().getFullYear();
+---
+
+<footer class="bg-grape-900 text-cream">
+  <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-12 sm:flex-row sm:items-center sm:justify-between">
+    <div>
+      <p class="font-display text-xl font-extrabold">{site.brandName}</p>
+      <p class="mt-1 text-sm text-cream/60">
+        © {year} {site.brandName}. {t('footer.rights')}.
+      </p>
+    </div>
+    <div>
+      <p class="mb-2 text-sm font-semibold text-cream/70">{t('footer.follow')}</p>
+      <SocialLinks />
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,83 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Wonder Wand — design tokens
+   Placeholder palette derived from the channel's cosmic purple/blue
+   look + warm star accents. Will be tuned once the final logo lands.
+------------------------------------------------------------------- */
+@theme {
+  --color-ink: #1e1b3a;
+  --color-cream: #fbf8ff;
+
+  --color-grape-50: #f3efff;
+  --color-grape-100: #e6ddff;
+  --color-grape-200: #ccbaff;
+  --color-grape-300: #b094ff;
+  --color-grape-400: #9366f7;
+  --color-grape-500: #7a45ec;
+  --color-grape-600: #6531d0;
+  --color-grape-700: #4f2596;
+  --color-grape-900: #2b1a63;
+
+  --color-sky-bright: #38bdf8;
+  --color-star: #ffd23f;
+  --color-bubblegum: #ff6fb5;
+  --color-mint: #4fd1a5;
+
+  --font-display: 'Baloo Bhaijaan 2', 'Baloo 2', system-ui, sans-serif;
+  --font-body-ar: 'Tajawal', system-ui, sans-serif;
+  --font-body-en: 'Nunito', system-ui, sans-serif;
+
+  --shadow-glow: 0 20px 60px -15px rgb(101 49 208 / 0.45);
+}
+
+@layer base {
+  :root {
+    --body-font: var(--font-body-en);
+  }
+
+  html[lang='ar'] {
+    --body-font: var(--font-body-ar);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--body-font);
+    background: var(--color-cream);
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-wrap: balance;
+    line-height: 1.15;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-grape-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* RTL/LTR-aware directional helpers used by a few components */
+[dir='rtl'] .flip-x {
+  transform: scaleX(-1);
+}

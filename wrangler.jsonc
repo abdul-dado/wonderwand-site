@@ -1,0 +1,16 @@
+{
+  // Cloudflare Pages project config.
+  // Docs: https://developers.cloudflare.com/pages/functions/wrangler-configuration/
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wonderwand-website",
+  "compatibility_date": "2025-08-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist"
+
+  // Runtime env vars (TURNSTILE_SECRET_KEY, SANITY_WRITE_TOKEN, RESEND_API_KEY, …)
+  // are set in the Cloudflare Pages dashboard, not here.
+  //
+  // Astro's adapter logs a note about a "SESSION" KV binding. It is only needed
+  // if the app uses Astro sessions (it does not). To silence it, create a KV
+  // namespace and add a `kv_namespaces` entry binding it as SESSION.
+}
