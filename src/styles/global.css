@@ -2,33 +2,36 @@
 
 /* ------------------------------------------------------------------
    Wonder Wand — design tokens
-   Placeholder palette derived from the channel's cosmic purple/blue
-   look + warm star accents. Will be tuned once the final logo lands.
+   Palette sampled from the channel logo: a cosmic violet base with a
+   magenta nebula, sky-blue mascot, warm star yellow, bubblegum pink
+   and soft lavender.
 ------------------------------------------------------------------- */
 @theme {
-  --color-ink: #1e1b3a;
-  --color-cream: #fbf8ff;
+  --color-ink: #241a4d;
+  --color-cream: #fbf7ff;
 
-  --color-grape-50: #f3efff;
-  --color-grape-100: #e6ddff;
-  --color-grape-200: #ccbaff;
-  --color-grape-300: #b094ff;
-  --color-grape-400: #9366f7;
-  --color-grape-500: #7a45ec;
-  --color-grape-600: #6531d0;
-  --color-grape-700: #4f2596;
-  --color-grape-900: #2b1a63;
+  /* grape = the core violet, from the logo background */
+  --color-grape-50: #f4efff;
+  --color-grape-100: #e7ddff;
+  --color-grape-200: #cdb8fb;
+  --color-grape-300: #ac8ef2;
+  --color-grape-400: #8a63e6;
+  --color-grape-500: #7145d6;
+  --color-grape-600: #5b32bd;
+  --color-grape-700: #48258f;
+  --color-grape-900: #2f1d6b;
 
-  --color-sky-bright: #38bdf8;
-  --color-star: #ffd23f;
-  --color-bubblegum: #ff6fb5;
-  --color-mint: #4fd1a5;
+  --color-lavender: #c9a9e9;
+  --color-nebula: #b06fd6;
+  --color-sky-bright: #5bb8e8;
+  --color-star: #ffd24b;
+  --color-bubblegum: #ff8fb0;
 
   --font-display: 'Baloo Bhaijaan 2', 'Baloo 2', system-ui, sans-serif;
   --font-body-ar: 'Tajawal', system-ui, sans-serif;
   --font-body-en: 'Nunito', system-ui, sans-serif;
 
-  --shadow-glow: 0 20px 60px -15px rgb(101 49 208 / 0.45);
+  --shadow-glow: 0 20px 60px -15px rgb(91 50 189 / 0.45);
 }
 
 @layer base {

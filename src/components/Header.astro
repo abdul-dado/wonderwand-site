@@ -1,6 +1,6 @@
 ---
 import { useTranslations, switchLangPath, otherLang, localizedPath, type Lang } from '@/i18n';
-import { site } from '@/data/site';
+import Logo from './Logo.astro';
 
 interface Props {
   lang: Lang;
@@ -21,9 +21,8 @@ const nav = [
   class="sticky top-0 z-40 border-b border-grape-100 bg-cream/90 backdrop-blur supports-[backdrop-filter]:bg-cream/75"
 >
   <div class="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
-    <a href={home} class="flex items-center gap-2 font-display text-lg font-extrabold text-grape-700">
-      <span aria-hidden="true">✨</span>
-      <span>{site.brandName}</span>
+    <a href={home} aria-label="Wonder Wand" class="flex items-center">
+      <Logo tone="ink" />
     </a>
 
     <nav class="mx-auto hidden gap-6 text-sm font-semibold text-ink/80 md:flex">
