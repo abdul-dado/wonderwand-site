@@ -256,8 +256,8 @@ export const site: SiteContent = {
         id: 'adult',
         name: { ar: 'مرافق (وليّ أمر)', en: 'Accompanying adult' },
         note: {
-          ar: 'مجانًا — كل طفل يحتاج مرافقًا واحدًا على الأقل',
-          en: 'Free — each child needs at least one accompanying adult',
+          ar: 'كل طفل يحتاج مرافقًا واحدًا على الأقل',
+          en: 'Each child needs at least one accompanying adult',
         },
         soldOut: false,
         perOrderLimit: 4,
