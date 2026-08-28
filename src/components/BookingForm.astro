@@ -1,6 +1,6 @@
 ---
 import { useTranslations, type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, childPrice, isEarlyBird } from '@/data/site';
 
 interface Props {
   lang: Lang;
@@ -13,6 +13,13 @@ const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 const closed = reg.status !== 'open';
 const closedMsg =
   reg.status === 'sold_out' ? t('tickets.soldOut') : t('tickets.closed');
+
+const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
+const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
+const cur = reg.pricing.currency;
+const price = childPrice();
+const earlyBird = isEarlyBird();
+const maxChildren = childTt.perOrderLimit;
 ---
 
 <section id="book" class="scroll-mt-24 bg-grape-50 py-16">
@@ -30,8 +37,12 @@ const closedMsg =
           id="booking-form"
           method="POST"
           action="/api/book"
-          data-tbd-label={t('event.tbd')}
           data-submitting-label={t('form.submitting')}
+          data-child-price={price}
+          data-currency={cur}
+          data-child-label={t('form.child')}
+          data-code-ok={t('form.discountApplied')}
+          data-code-bad={t('form.discountInvalid')}
           data-no-seats-label={
             lang === 'ar'
               ? 'اختر عدد التذاكر أولًا.'
@@ -114,43 +125,131 @@ const closedMsg =
             <legend class="px-1 text-sm font-semibold text-ink">
               {t('form.ticketType')}
             </legend>
-            <div class="space-y-3">
-              {reg.ticketTypes.map((tt) => (
-                <div class="flex items-center justify-between gap-3">
-                  <div>
-                    <p class="font-semibold text-ink">{tx(tt.name, lang)}</p>
-                    <p class="text-xs text-ink/60">
-                      {tt.soldOut ? t('tickets.soldOut') : tx(tt.note, lang)}
-                    </p>
-                  </div>
-                  <input
-                    type="number"
-                    name={`qty_${tt.id}`}
-                    min="0"
-                    max={tt.perOrderLimit}
-                    value="0"
-                    disabled={tt.soldOut}
-                    data-price={tt.price}
-                    class="qty w-16 rounded-xl border border-grape-200 px-2 py-2 text-center outline-none focus:border-grape-500 disabled:opacity-40"
-                  />
-                </div>
-              ))}
+
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="font-semibold text-ink">{tx(childTt.name, lang)}</p>
+                <p class="text-xs text-ink/60">
+                  {earlyBird ? (
+                    <>
+                      <span class="font-bold text-grape-700">{price} {cur}</span>
+                      <span class="text-grape-500">
+                        {' '}· {t('tickets.earlyBird')} — {t('tickets.earlyBirdActive')}
+                      </span>
+                    </>
+                  ) : (
+                    <span class="font-bold text-ink">{price} {cur}</span>
+                  )}
+                </p>
+              </div>
+              <input
+                type="number"
+                id="qty_child"
+                name="qty_child"
+                min="0"
+                max={maxChildren}
+                value="0"
+                inputmode="numeric"
+                class="w-16 rounded-xl border border-grape-200 px-2 py-2 text-center outline-none focus:border-grape-500"
+              />
             </div>
-            <p class="mt-3 text-sm font-semibold text-grape-700">
-              {t('form.total')}: <span id="total">—</span>
-            </p>
+
+            <div class="mt-3 flex items-center justify-between gap-3">
+              <div>
+                <p class="font-semibold text-ink">{tx(adultTt.name, lang)}</p>
+                <p class="text-xs text-ink/60">
+                  <span class="font-bold text-ink">{t('tickets.free')}</span> ·{' '}
+                  {tx(adultTt.note, lang)}
+                </p>
+              </div>
+              <input
+                type="number"
+                id="qty_adult"
+                name="qty_adult"
+                min="0"
+                max={adultTt.perOrderLimit}
+                value="0"
+                inputmode="numeric"
+                class="w-16 rounded-xl border border-grape-200 px-2 py-2 text-center outline-none focus:border-grape-500"
+              />
+            </div>
+
+            <div class="mt-4 border-t border-grape-100 pt-3">
+              <label class="block text-xs font-semibold text-ink/70" for="discountCode">
+                {t('form.discountCode')}
+              </label>
+              <div class="mt-1 flex gap-2">
+                <input
+                  id="discountCode"
+                  name="discountCode"
+                  autocapitalize="characters"
+                  autocomplete="off"
+                  class="flex-1 rounded-lg border border-grape-200 px-3 py-2 uppercase outline-none focus:border-grape-500"
+                />
+                <button
+                  type="button"
+                  id="apply-code"
+                  class="rounded-lg bg-grape-100 px-4 py-2 text-sm font-bold text-grape-700 hover:bg-grape-200"
+                >
+                  {t('form.apply')}
+                </button>
+              </div>
+              <p id="code-msg" class="mt-1 hidden text-xs font-semibold"></p>
+            </div>
+
+            <dl class="mt-3 space-y-1 text-sm">
+              <div id="row-subtotal" class="hidden justify-between text-ink/70">
+                <dt>{t('form.subtotal')}</dt>
+                <dd><span id="subtotal">—</span></dd>
+              </div>
+              <div id="row-discount" class="hidden justify-between text-grape-600">
+                <dt>{t('form.discount')} (<span id="disc-label"></span>)</dt>
+                <dd>−<span id="discount">0</span></dd>
+              </div>
+              <div class="flex justify-between text-base font-extrabold text-grape-700">
+                <dt>{t('form.total')}</dt>
+                <dd><span id="total">—</span></dd>
+              </div>
+            </dl>
           </fieldset>
 
-          <div>
-            <label class="block text-sm font-semibold text-ink" for="kidsAges">
-              {t('form.kidsAges')}
-            </label>
-            <input
-              id="kidsAges"
-              name="kidsAges"
-              placeholder={t('form.kidsAgesHint')}
-              class="mt-1 w-full rounded-xl border border-grape-200 px-3 py-2.5 outline-none focus:border-grape-500"
-            />
+          {/* Per-child details — revealed to match the child ticket count */}
+          <div id="children" class="hidden space-y-3">
+            <p class="text-sm font-semibold text-ink">{t('form.childrenDetails')}</p>
+            {Array.from({ length: maxChildren }).map((_, i) => (
+              <div
+                class="child-row hidden flex-col gap-3 rounded-xl border border-grape-100 bg-grape-50/50 p-3 sm:flex-row"
+                data-index={i}
+              >
+                <div class="flex-1">
+                  <label class="block text-xs font-semibold text-ink/70" for={`child_name_${i}`}>
+                    {t('form.childName')} {i + 1}
+                  </label>
+                  <input
+                    id={`child_name_${i}`}
+                    name={`child_name_${i}`}
+                    disabled
+                    class="child-name mt-1 w-full rounded-lg border border-grape-200 px-3 py-2 outline-none focus:border-grape-500"
+                  />
+                </div>
+                <div class="w-28">
+                  <label class="block text-xs font-semibold text-ink/70" for={`child_age_${i}`}>
+                    {t('form.age')}
+                  </label>
+                  <select
+                    id={`child_age_${i}`}
+                    name={`child_age_${i}`}
+                    disabled
+                    class="child-age mt-1 w-full rounded-lg border border-grape-200 bg-white px-2 py-2 outline-none focus:border-grape-500"
+                  >
+                    <option value="">{t('form.selectAge')}</option>
+                    {reg.childAges.map((age) => (
+                      <option value={age}>{age}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div>
@@ -170,11 +269,7 @@ const closedMsg =
           </label>
 
           {turnstileKey && (
-            <div
-              class="cf-turnstile"
-              data-sitekey={turnstileKey}
-              data-theme="light"
-            />
+            <div class="cf-turnstile" data-sitekey={turnstileKey} data-theme="light" />
           )}
 
           <button
@@ -205,38 +300,143 @@ const closedMsg =
 <script>
   const form = document.getElementById('booking-form') as HTMLFormElement | null;
   if (form) {
-    const totalEl = document.getElementById('total')!;
-    const errEl = document.getElementById('form-error')!;
+    const $ = (id: string) => document.getElementById(id)!;
+    const totalEl = $('total');
+    const subtotalEl = $('subtotal');
+    const discountEl = $('discount');
+    const discLabelEl = $('disc-label');
+    const rowSubtotal = $('row-subtotal');
+    const rowDiscount = $('row-discount');
+    const errEl = $('form-error');
+    const codeInput = $('discountCode') as HTMLInputElement;
+    const applyBtn = $('apply-code') as HTMLButtonElement;
+    const codeMsg = $('code-msg');
     const submitBtn = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
     const submitLabel = submitBtn.textContent;
-    const tbd = form.dataset.tbdLabel || '';
-    const qtyInputs = [...form.querySelectorAll<HTMLInputElement>('.qty')];
+    const childQty = $('qty_child') as HTMLInputElement;
+    const adultQty = $('qty_adult') as HTMLInputElement;
+    const childrenWrap = $('children');
+    const rows = [...form.querySelectorAll<HTMLElement>('.child-row')];
 
-    const recalc = () => {
-      let total = 0;
-      let count = 0;
-      for (const input of qtyInputs) {
-        const n = Math.max(0, Number(input.value) || 0);
-        count += n;
-        total += n * Number(input.dataset.price || 0);
-      }
-      totalEl.textContent =
-        count === 0 ? '—' : total === 0 ? tbd || '—' : `${total} JOD`;
+    const childPrice = Number(form.dataset.childPrice || 0);
+    const currency = form.dataset.currency || '';
+    const lang = (form.querySelector('[name="lang"]') as HTMLInputElement).value;
+
+    type Discount = { type: 'percent' | 'amount'; value: number; label: string };
+    let discount: Discount | null = null;
+
+    const money = (n: number) => `${Math.round(n * 100) / 100} ${currency}`;
+
+    const clamp = (input: HTMLInputElement) => {
+      let n = Math.floor(Number(input.value) || 0);
+      const min = Number(input.min || 0);
+      const max = Number(input.max || 99);
+      n = Math.max(min, Math.min(max, n));
+      input.value = String(n);
+      return n;
     };
-    qtyInputs.forEach((i) => i.addEventListener('input', recalc));
-    recalc();
+
+    const sync = () => {
+      const kids = clamp(childQty);
+      clamp(adultQty);
+
+      childrenWrap.classList.toggle('hidden', kids < 1);
+      rows.forEach((row, i) => {
+        const active = i < kids;
+        row.classList.toggle('hidden', !active);
+        row.classList.toggle('flex', active);
+        row
+          .querySelectorAll<HTMLInputElement | HTMLSelectElement>('.child-name, .child-age')
+          .forEach((el) => {
+            el.disabled = !active;
+            if (active && el.classList.contains('child-name')) el.required = true;
+            if (active && el.classList.contains('child-age')) el.required = true;
+          });
+      });
+
+      const subtotal = kids * childPrice;
+      let disc = 0;
+      if (discount && subtotal > 0) {
+        disc =
+          discount.type === 'percent'
+            ? (subtotal * discount.value) / 100
+            : discount.value;
+        disc = Math.min(subtotal, Math.max(0, disc));
+      }
+      const total = subtotal - disc;
+
+      const showBreakdown = disc > 0;
+      rowSubtotal.classList.toggle('hidden', !showBreakdown);
+      rowSubtotal.classList.toggle('flex', showBreakdown);
+      rowDiscount.classList.toggle('hidden', !showBreakdown);
+      rowDiscount.classList.toggle('flex', showBreakdown);
+      if (showBreakdown) {
+        subtotalEl.textContent = money(subtotal);
+        discountEl.textContent = money(disc);
+        discLabelEl.textContent = discount ? discount.label : '';
+      }
+      totalEl.textContent = kids === 0 ? '—' : money(total);
+    };
+
+    const applyCode = async () => {
+      const code = codeInput.value.trim();
+      codeMsg.classList.add('hidden');
+      if (!code) {
+        discount = null;
+        sync();
+        return;
+      }
+      applyBtn.disabled = true;
+      try {
+        const res = await fetch(
+          `/api/discount?code=${encodeURIComponent(code)}&lang=${lang}`,
+        );
+        const data = (await res.json()) as {
+          valid?: boolean;
+          type?: 'percent' | 'amount';
+          value?: number;
+          label?: string;
+        };
+        if (data.valid && data.type && typeof data.value === 'number') {
+          discount = { type: data.type, value: data.value, label: data.label || code };
+          codeMsg.textContent = `✓ ${form.dataset.codeOk} — ${discount.label}`;
+          codeMsg.className = 'mt-1 text-xs font-semibold text-grape-600';
+        } else {
+          discount = null;
+          codeMsg.textContent = form.dataset.codeBad || '';
+          codeMsg.className = 'mt-1 text-xs font-semibold text-bubblegum';
+        }
+      } catch {
+        discount = null;
+        codeMsg.textContent = form.dataset.codeBad || '';
+        codeMsg.className = 'mt-1 text-xs font-semibold text-bubblegum';
+      } finally {
+        applyBtn.disabled = false;
+        codeMsg.classList.remove('hidden');
+        sync();
+      }
+    };
+
+    childQty.addEventListener('input', sync);
+    adultQty.addEventListener('input', sync);
+    applyBtn.addEventListener('click', applyCode);
+    codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applyCode();
+      }
+    });
+    sync();
 
     form.addEventListener('submit', async (event) => {
-      const anySeats = qtyInputs.some((i) => (Number(i.value) || 0) > 0);
-      if (!anySeats) {
-        event.preventDefault();
+      event.preventDefault();
+      if ((Number(childQty.value) || 0) + (Number(adultQty.value) || 0) < 1) {
         errEl.textContent = form.dataset.noSeatsLabel || '';
         errEl.classList.remove('hidden');
         return;
       }
-      // Progressive enhancement: submit via fetch, then go to the localized
-      // success page with the booking reference.
-      event.preventDefault();
+      if (!form.reportValidity()) return;
+
       errEl.classList.add('hidden');
       submitBtn.disabled = true;
       submitBtn.textContent = form.dataset.submittingLabel || submitLabel;
@@ -253,7 +453,6 @@ const closedMsg =
           error?: string;
         };
         if (res.ok && data.ok) {
-          const lang = (form.querySelector('[name="lang"]') as HTMLInputElement).value;
           const url = new URL(`/${lang}/success/`, location.origin);
           if (data.ref) url.searchParams.set('ref', data.ref);
           location.href = url.href;
@@ -261,7 +460,7 @@ const closedMsg =
         }
         throw new Error(data.error || 'error');
       } catch {
-        errEl.textContent = form.dataset.errorLabel || 'Something went wrong. Please try again.';
+        errEl.textContent = form.dataset.errorLabel || 'Something went wrong.';
         errEl.classList.remove('hidden');
         submitBtn.disabled = false;
         submitBtn.textContent = submitLabel;

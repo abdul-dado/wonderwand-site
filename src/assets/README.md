@@ -8,8 +8,8 @@ Expected files:
 | File                | Use                                             |
 | ------------------- | ----------------------------------------------- |
 | `logo.png` / `.svg` | Header wordmark / favicon source                |
-| `characters.png`    | Rahaf + Hela — hero illustration                |
-| `mascot-hela.png`   | The blue star mascot on its own                 |
+| `characters.png`    | Rahaf + Hayla — hero illustration               |
+| `mascot-hayla.png`  | The blue star mascot on its own                 |
 | `rahaf.png`         | Presenter portrait                              |
 | `og.png` (1200×630) | Social share image (falls back to a generated one) |
 

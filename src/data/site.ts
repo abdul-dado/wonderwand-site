@@ -10,14 +10,36 @@ import type { Lang } from '@/i18n';
 type L = Record<Lang, string>;
 
 export interface TicketType {
-  id: string;
+  id: 'child' | 'adult';
   name: L;
-  /** Price in JOD. 0 = free. */
-  price: number;
   note: L;
   soldOut: boolean;
   /** Max seats of this type per single booking. */
   perOrderLimit: number;
+}
+
+export interface Pricing {
+  currency: string;
+  /** Child ticket price before the early-bird cutoff. */
+  childEarlyBird: number;
+  /** Child ticket price on/after the cutoff. */
+  childRegular: number;
+  /** Accompanying-adult price (0 = free). */
+  adult: number;
+  /** ISO 8601 with timezone — early-bird pricing applies up to this instant. */
+  earlyBirdUntil: string;
+}
+
+export interface DiscountCode {
+  /** Matched case-insensitively. */
+  code: string;
+  type: 'percent' | 'amount';
+  /** Percent 1–100, or a fixed amount in the pricing currency. */
+  value: number;
+  active: boolean;
+  label: L;
+  /** Optional ISO 8601 expiry. */
+  expiresAt?: string;
 }
 
 export interface Activity {
@@ -73,6 +95,11 @@ export interface SiteContent {
     /** 'open' | 'closed' | 'sold_out' */
     status: 'open' | 'closed' | 'sold_out';
     ticketTypes: TicketType[];
+    pricing: Pricing;
+    /** Discount codes — add/enable your own; matched case-insensitively. */
+    discounts: DiscountCode[];
+    /** Selectable ages for each child on the booking form. */
+    childAges: number[];
     cliqAlias: string;
     cliqName: L;
     paymentWindowHours: number;
@@ -141,8 +168,8 @@ export const site: SiteContent = {
       en: 'Wonder Wand is an educational and entertaining channel for children, offering fun and interactive content in both Arabic and English. We help children learn letters, words, vocabulary, numbers, colors, and everyday concepts through stories, adventures, games, and engaging learning experiences.',
     },
     hosts: {
-      ar: 'مع رهف وهلا',
-      en: 'With Rahaf & Hela',
+      ar: 'مع رهف وهيلا',
+      en: 'With Rahaf & Hayla',
     },
   },
 
@@ -218,26 +245,49 @@ export const site: SiteContent = {
       {
         id: 'child',
         name: { ar: 'تذكرة طفل', en: 'Child ticket' },
-        price: 0,
         note: {
-          ar: 'السعر يُعلن قريبًا',
-          en: 'Price announced soon',
+          ar: 'يشمل دخول الطفل وكل الفعاليات',
+          en: 'Includes the child’s entry and all activities',
         },
         soldOut: false,
         perOrderLimit: 6,
       },
       {
         id: 'adult',
-        name: { ar: 'تذكرة مرافق', en: 'Accompanying adult' },
-        price: 0,
+        name: { ar: 'مرافق (وليّ أمر)', en: 'Accompanying adult' },
         note: {
-          ar: 'السعر يُعلن قريبًا',
-          en: 'Price announced soon',
+          ar: 'مجانًا — كل طفل يحتاج مرافقًا واحدًا على الأقل',
+          en: 'Free — each child needs at least one accompanying adult',
         },
         soldOut: false,
         perOrderLimit: 4,
       },
     ],
+    pricing: {
+      currency: 'JOD',
+      childEarlyBird: 15,
+      childRegular: 20,
+      adult: 0,
+      earlyBirdUntil: '2026-09-15T23:59:59+03:00',
+    },
+    discounts: [
+      // Example — set active: true (or add your own codes):
+      {
+        code: 'WONDER10',
+        type: 'percent',
+        value: 10,
+        active: false,
+        label: { ar: 'خصم 10٪', en: '10% off' },
+      },
+      {
+        code: 'FAMILY5',
+        type: 'amount',
+        value: 5,
+        active: false,
+        label: { ar: 'خصم 5 دنانير', en: '5 JOD off' },
+      },
+    ],
+    childAges: [3, 4, 5, 6, 7, 8],
     cliqAlias: '',
     cliqName: { ar: 'يُعلن عند تأكيد الحجز', en: 'Shared on booking' },
     paymentWindowHours: 24,
@@ -305,4 +355,36 @@ export const site: SiteContent = {
 /** Convenience: collapse a localized field to a plain string. */
 export function tx(value: L, lang: Lang): string {
   return value[lang] ?? value.ar;
+}
+
+/** True while early-bird pricing is still in effect. */
+export function isEarlyBird(now: Date = new Date()): boolean {
+  return now.getTime() <= new Date(site.registration.pricing.earlyBirdUntil).getTime();
+}
+
+/** Child ticket price for the given moment (early-bird vs regular). */
+export function childPrice(now: Date = new Date()): number {
+  const p = site.registration.pricing;
+  return isEarlyBird(now) ? p.childEarlyBird : p.childRegular;
+}
+
+/** Look up an active, non-expired discount code (case-insensitive). */
+export function findDiscount(
+  code: string,
+  now: Date = new Date(),
+): DiscountCode | null {
+  const c = code.trim().toUpperCase();
+  if (!c) return null;
+  const d = site.registration.discounts.find(
+    (x) => x.active && x.code.toUpperCase() === c,
+  );
+  if (!d) return null;
+  if (d.expiresAt && now.getTime() > new Date(d.expiresAt).getTime()) return null;
+  return d;
+}
+
+/** Money taken off `subtotal` by a discount, clamped to [0, subtotal]. */
+export function discountAmount(subtotal: number, d: DiscountCode): number {
+  const raw = d.type === 'percent' ? (subtotal * d.value) / 100 : d.value;
+  return Math.min(subtotal, Math.max(0, Math.round(raw * 100) / 100));
 }

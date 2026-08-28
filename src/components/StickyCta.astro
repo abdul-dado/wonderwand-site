@@ -8,9 +8,7 @@ const { lang } = Astro.props;
 const t = useTranslations(lang);
 ---
 
-<div
-  class="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center p-3 sm:hidden"
->
+<div class="ww-sticky-cta">
   <a
     href="#book"
     class="pointer-events-auto w-full max-w-sm rounded-full bg-grape-600 px-6 py-3.5 text-center text-base font-extrabold text-cream shadow-glow"
@@ -18,3 +16,21 @@ const t = useTranslations(lang);
     {t('cta.book')}
   </a>
 </div>
+
+<style>
+  .ww-sticky-cta {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: center;
+    padding: 0.75rem;
+    pointer-events: none;
+  }
+  @media (min-width: 640px) {
+    .ww-sticky-cta {
+      display: none;
+    }
+  }
+</style>

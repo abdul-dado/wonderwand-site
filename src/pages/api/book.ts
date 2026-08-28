@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { site } from '@/data/site';
+import { site, childPrice, isEarlyBird, findDiscount, discountAmount } from '@/data/site';
 
 export const prerender = false;
 
@@ -83,16 +83,39 @@ export const POST: APIRoute = async (context) => {
   }
 
   // 4. Ticket quantities.
-  const items = site.registration.ticketTypes.map((tt) => ({
-    id: tt.id,
-    qty: Math.max(0, Math.min(tt.perOrderLimit, Number(form.get(`qty_${tt.id}`)) || 0)),
-    price: tt.price,
-  }));
-  const totalSeats = items.reduce((n, i) => n + i.qty, 0);
-  const amount = items.reduce((n, i) => n + i.qty * i.price, 0);
-  if (totalSeats < 1) return fail(422, 'no_seats');
+  const reg = site.registration;
+  const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
+  const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
+  const clamp = (v: unknown, max: number) =>
+    Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
 
-  // 5. Spam protection.
+  const childCount = clamp(form.get('qty_child'), childTt.perOrderLimit);
+  const adultCount = clamp(form.get('qty_adult'), adultTt.perOrderLimit);
+  if (childCount < 1) return fail(422, 'no_children');
+
+  // 5. Per-child details (name + age).
+  const allowedAges = new Set(reg.childAges.map(String));
+  const children: { name: string; age: number }[] = [];
+  for (let i = 0; i < childTt.perOrderLimit; i++) {
+    const name = get(`child_name_${i}`);
+    const age = get(`child_age_${i}`);
+    if (!name && !age) continue;
+    if (!name || !allowedAges.has(age)) return fail(422, 'invalid_child');
+    children.push({ name, age: Number(age) });
+  }
+  if (children.length !== childCount) return fail(422, 'child_count_mismatch');
+
+  const unitPrice = childPrice();
+  const subtotal = childCount * unitPrice + adultCount * reg.pricing.adult;
+  const totalSeats = childCount + adultCount;
+
+  // Discount code (optional).
+  const codeInput = get('discountCode');
+  const discount = codeInput ? findDiscount(codeInput) : null;
+  const discountValue = discount ? discountAmount(subtotal, discount) : 0;
+  const amount = Math.max(0, Math.round((subtotal - discountValue) * 100) / 100);
+
+  // 6. Spam protection.
   if (env.TURNSTILE_SECRET_KEY) {
     const token = get('cf-turnstile-response');
     const ip = request.headers.get('CF-Connecting-IP');
@@ -108,11 +131,18 @@ export const POST: APIRoute = async (context) => {
     phone,
     email,
     city: get('city'),
-    kidsAges: get('kidsAges'),
-    hearAbout: get('hearAbout'),
-    items,
+    children,
+    childCount,
+    adultCount,
     totalSeats,
+    unitPrice,
+    subtotal,
+    discountCode: discount?.code ?? null,
+    discountValue,
     amount,
+    currency: reg.pricing.currency,
+    earlyBird: isEarlyBird(),
+    hearAbout: get('hearAbout'),
     lang,
     status: 'pending_payment' as const,
     createdAt: new Date().toISOString(),

@@ -1,4 +1,6 @@
 ---
+import WandMark from './WandMark.astro';
+
 interface Props {
   /** 'ink' for light backgrounds, 'cream' for dark backgrounds. */
   tone?: 'ink' | 'cream';
@@ -9,23 +11,7 @@ const textColor = tone === 'cream' ? 'text-cream' : 'text-grape-700';
 ---
 
 <span class:list={['inline-flex items-center gap-2', className]}>
-  <svg
-    width="28"
-    height="28"
-    viewBox="0 0 32 32"
-    fill="none"
-    aria-hidden="true"
-    class="shrink-0"
-  >
-    <path
-      d="M16 2.5l3.6 7.3 8.1 1.2-5.9 5.7 1.4 8-7.3-3.8-7.2 3.8 1.4-8-5.9-5.7 8-1.2L16 2.5z"
-      fill="var(--color-star)"
-      stroke="var(--color-grape-600)"
-      stroke-width="1.6"
-      stroke-linejoin="round"
-    ></path>
-    <circle cx="16" cy="14.5" r="2.4" fill="var(--color-grape-600)"></circle>
-  </svg>
+  <WandMark size={30} class="shrink-0" sparkles={false} />
   <span class:list={['font-display text-lg font-extrabold leading-none', textColor]}>
     Wonder Wand
   </span>
