@@ -3,7 +3,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import { useTranslations, localizedPath, locales, type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { tx } from '@/data/site';
+import { loadContent } from '@/lib/content';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -12,9 +13,10 @@ export function getStaticPaths() {
 const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 const title = t('success.title');
+const content = await loadContent();
 ---
 
-<BaseLayout lang={lang} path="/success/" title={`${title} — Wonder Wand`} noindex>
+<BaseLayout lang={lang} path="/success/" title={`${title} — Wonder Wand`} noindex content={content}>
   <Header lang={lang} />
   <main class="mx-auto max-w-xl px-4 py-20 text-center">
     <div class="text-5xl" aria-hidden="true">🎉</div>
@@ -29,7 +31,7 @@ const title = t('success.title');
     </p>
 
     <div class="mt-6 rounded-2xl border border-grape-100 bg-white p-6 text-start text-ink/80">
-      {tx(site.registration.paymentInstructions, lang)}
+      {tx(content.registration.paymentInstructions, lang)}
     </div>
 
     <a
@@ -39,7 +41,7 @@ const title = t('success.title');
       {t('success.back')}
     </a>
   </main>
-  <Footer lang={lang} />
+  <Footer lang={lang} content={content} />
 
   <script is:inline>
     (function () {

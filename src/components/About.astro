@@ -1,29 +1,30 @@
 ---
 import { Image } from 'astro:assets';
 import { type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 import wandImg from '@/assets/wand-cut.png';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 ---
 
 <section id="about" class="relative overflow-hidden">
   <div class="mx-auto grid max-w-5xl items-center gap-8 px-4 py-16 sm:grid-cols-[1fr_auto]">
     <div>
       <p class="font-display text-sm font-bold uppercase tracking-wide text-grape-500">
-        {tx(site.about.hosts, lang)}
+        {tx(content.about.hosts, lang)}
       </p>
       <h2 class="mt-2 text-2xl font-extrabold text-ink sm:text-3xl">
-        {tx(site.about.title, lang)}
+        {tx(content.about.title, lang)}
       </h2>
       <p class="mt-4 text-lg leading-relaxed text-ink/80">
-        {tx(site.about.body, lang)}
+        {tx(content.about.body, lang)}
       </p>
       <p class="mt-6 font-display text-xl font-bold text-grape-600">
-        {tx(site.tagline, lang)}
+        {tx(content.tagline, lang)}
       </p>
     </div>
 

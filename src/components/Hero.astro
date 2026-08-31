@@ -1,14 +1,15 @@
 ---
 import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 import Countdown from './Countdown.astro';
 import charactersImg from '@/assets/characters.jpg';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
 ---
 
@@ -34,15 +35,15 @@ const t = useTranslations(lang);
   <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
     <div class="text-center lg:text-start">
       <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold ring-1 ring-white/15">
-        <span aria-hidden="true">🎉</span>{tx(site.hero.kicker, lang)}
+        <span aria-hidden="true">🎉</span>{tx(content.hero.kicker, lang)}
       </p>
 
       <h1 class="text-3xl font-extrabold leading-[1.1] sm:text-5xl">
-        {tx(site.hero.title, lang)}
+        {tx(content.hero.title, lang)}
       </h1>
 
       <p class="mx-auto mt-5 max-w-xl text-base text-cream/85 sm:text-lg lg:mx-0">
-        {tx(site.hero.subtitle, lang)}
+        {tx(content.hero.subtitle, lang)}
       </p>
 
       <div class="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
@@ -53,7 +54,7 @@ const t = useTranslations(lang);
           {t('cta.book')}
         </a>
         <a
-          href={site.social.youtube}
+          href={content.social.youtube}
           target="_blank"
           rel="noopener"
           class="rounded-full border border-white/25 px-7 py-3 text-base font-bold text-cream transition hover:bg-white/10"
@@ -72,7 +73,7 @@ const t = useTranslations(lang);
       </div>
       <Image
         src={charactersImg}
-        alt={`${site.brandName} — ${tx(site.about.hosts, lang)}`}
+        alt={`${content.brandName} — ${tx(content.about.hosts, lang)}`}
         width={520}
         height={520}
         class="ww-float relative mx-auto w-full rounded-full ring-4 ring-white/20 drop-shadow-2xl"
@@ -82,6 +83,6 @@ const t = useTranslations(lang);
   </div>
 
   <div class="relative mx-auto max-w-6xl px-4 pb-16">
-    <Countdown lang={lang} />
+    <Countdown lang={lang} content={content} />
   </div>
 </section>

@@ -11,49 +11,53 @@ import Faq from '@/components/Faq.astro';
 import Footer from '@/components/Footer.astro';
 import StickyCta from '@/components/StickyCta.astro';
 import { locales, type Lang } from '@/i18n';
-import { site, tx, childPrice } from '@/data/site';
+import { tx, childPrice } from '@/data/site';
+import { loadContent } from '@/lib/content';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
 }
 
 const lang = Astro.params.lang as Lang;
+const content = await loadContent();
+const e = content.event;
+const reg = content.registration;
 
 const eventLd = {
   '@context': 'https://schema.org',
   '@type': 'Event',
-  name: tx(site.seo.title, lang),
-  startDate: site.event.startsAt,
-  ...(site.event.endsAt ? { endDate: site.event.endsAt } : {}),
+  name: tx(content.seo.title, lang),
+  startDate: e.startsAt,
+  ...(e.endsAt ? { endDate: e.endsAt } : {}),
   eventStatus: 'https://schema.org/EventScheduled',
   eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-  description: tx(site.seo.description, lang),
+  description: tx(content.seo.description, lang),
   location: {
     '@type': 'Place',
-    name: tx(site.event.venueName, lang),
-    address: tx(site.event.address, lang),
+    name: tx(e.venueName, lang),
+    address: tx(e.address, lang),
   },
   organizer: {
     '@type': 'Organization',
-    name: 'Wonder Wand',
+    name: content.brandName,
     url: 'https://wonderwand.org',
   },
-  ...(site.registration.status === 'open'
+  ...(reg.status === 'open'
     ? {
         offers: {
           '@type': 'Offer',
-          price: childPrice(),
-          priceCurrency: site.registration.pricing.currency,
+          price: childPrice(reg.pricing),
+          priceCurrency: reg.pricing.currency,
           availability: 'https://schema.org/InStock',
           url: 'https://wonderwand.org/' + lang + '/#book',
         },
       }
     : {}),
-  image: [new URL(site.seo.ogImage, Astro.site).href],
+  image: [new URL(content.seo.ogImage, Astro.site).href],
 };
 ---
 
-<BaseLayout lang={lang} path="/">
+<BaseLayout lang={lang} path="/" content={content}>
   <script
     slot="head"
     type="application/ld+json"
@@ -61,16 +65,16 @@ const eventLd = {
     is:inline
   />
 
-  <AnnouncementBar lang={lang} />
+  <AnnouncementBar lang={lang} content={content} />
   <Header lang={lang} />
   <main>
-    <Hero lang={lang} />
-    <About lang={lang} />
-    <EventDetails lang={lang} />
-    <Activities lang={lang} />
-    <BookingForm lang={lang} />
-    <Faq lang={lang} />
+    <Hero lang={lang} content={content} />
+    <About lang={lang} content={content} />
+    <EventDetails lang={lang} content={content} />
+    <Activities lang={lang} content={content} />
+    <BookingForm lang={lang} content={content} />
+    <Faq lang={lang} content={content} />
   </main>
-  <Footer lang={lang} />
+  <Footer lang={lang} content={content} />
   <StickyCta lang={lang} />
 </BaseLayout>

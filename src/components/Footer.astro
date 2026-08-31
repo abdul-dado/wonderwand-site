@@ -1,13 +1,14 @@
 ---
 import { useTranslations, type Lang } from '@/i18n';
-import { site } from '@/data/site';
+import { site, type SiteContent } from '@/data/site';
 import SocialLinks from './SocialLinks.astro';
 import Logo from './Logo.astro';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
 ---
@@ -17,12 +18,12 @@ const year = new Date().getFullYear();
     <div>
       <Logo tone="cream" />
       <p class="mt-2 text-sm text-cream/60">
-        © {year} {site.brandName}. {t('footer.rights')}.
+        © {year} {content.brandName}. {t('footer.rights')}.
       </p>
     </div>
     <div>
       <p class="mb-2 text-sm font-semibold text-cream/70">{t('footer.follow')}</p>
-      <SocialLinks />
+      <SocialLinks social={content.social} />
     </div>
   </div>
 </footer>

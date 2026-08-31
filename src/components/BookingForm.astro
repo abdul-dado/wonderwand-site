@@ -1,13 +1,14 @@
 ---
 import { useTranslations, type Lang } from '@/i18n';
-import { site, tx, childPrice, isEarlyBird } from '@/data/site';
+import { site, tx, childPrice, isEarlyBird, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
-const reg = site.registration;
+const reg = content.registration;
 const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
 
 const closed = reg.status !== 'open';
@@ -17,8 +18,8 @@ const closedMsg =
 const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
 const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
 const cur = reg.pricing.currency;
-const price = childPrice();
-const earlyBird = isEarlyBird();
+const price = childPrice(reg.pricing);
+const earlyBird = isEarlyBird(reg.pricing);
 const maxChildren = childTt.perOrderLimit;
 ---
 

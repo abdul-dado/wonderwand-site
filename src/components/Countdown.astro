@@ -1,11 +1,12 @@
 ---
 import { useTranslations, type Lang } from '@/i18n';
-import { site } from '@/data/site';
+import { site, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
 
 const units = [
@@ -18,7 +19,7 @@ const units = [
 
 <div
   class="countdown mx-auto w-full max-w-md"
-  data-target={site.event.startsAt}
+  data-target={content.event.startsAt}
   data-live-label={t('countdown.live')}
 >
   <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-cream/70">

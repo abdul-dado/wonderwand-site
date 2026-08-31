@@ -1,25 +1,26 @@
 ---
-import { site } from '@/data/site';
+import { site, type SiteContent } from '@/data/site';
 
 interface Props {
   class?: string;
+  social?: SiteContent['social'];
 }
-const { class: className = '' } = Astro.props;
+const { class: className = '', social = site.social } = Astro.props;
 
-const s = site.social;
+const waHref = social.whatsapp
+  ? social.whatsapp.startsWith('http')
+    ? social.whatsapp
+    : `https://wa.me/${social.whatsapp.replace(/[^\d]/g, '')}`
+  : '';
 const links = [
-  { key: 'youtube', href: s.youtube, label: 'YouTube' },
-  { key: 'instagram', href: s.instagram, label: 'Instagram' },
-  { key: 'tiktok', href: s.tiktok, label: 'TikTok' },
-  { key: 'facebook', href: s.facebook, label: 'Facebook' },
-  {
-    key: 'whatsapp',
-    href: s.whatsapp,
-    label: 'WhatsApp',
-  },
+  { key: 'youtube', href: social.youtube, label: 'YouTube' },
+  { key: 'instagram', href: social.instagram, label: 'Instagram' },
+  { key: 'tiktok', href: social.tiktok, label: 'TikTok' },
+  { key: 'facebook', href: social.facebook, label: 'Facebook' },
+  { key: 'whatsapp', href: waHref, label: 'WhatsApp' },
   {
     key: 'email',
-    href: s.email ? `mailto:${s.email}` : '',
+    href: social.email ? `mailto:${social.email}` : '',
     label: 'Email',
   },
 ].filter((l) => l.href);

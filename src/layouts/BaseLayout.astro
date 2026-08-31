@@ -13,7 +13,7 @@ import '@fontsource/nunito/800.css';
 import '@/styles/global.css';
 
 import { dir, locales, localizedPath, type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
@@ -22,22 +22,24 @@ interface Props {
   title?: string;
   description?: string;
   noindex?: boolean;
+  content?: SiteContent;
 }
 
-const { lang, path = '/', title, description, noindex = false } = Astro.props;
+const { lang, path = '/', title, description, noindex = false, content = site } =
+  Astro.props;
 
 const siteOrigin = Astro.site?.origin ?? 'https://wonderwand.org';
-const pageTitle = title ?? tx(site.seo.title, lang);
-const pageDesc = description ?? tx(site.seo.description, lang);
+const pageTitle = title ?? tx(content.seo.title, lang);
+const pageDesc = description ?? tx(content.seo.description, lang);
 const canonical = new URL(localizedPath(lang, path), siteOrigin).href;
-const ogImage = new URL(site.seo.ogImage, siteOrigin).href;
+const ogImage = new URL(content.seo.ogImage, siteOrigin).href;
 
 const alternates = locales.map((l) => ({
   hreflang: l,
   href: new URL(localizedPath(l, path), siteOrigin).href,
 }));
 
-const { ga4Id, metaPixelId } = site.analytics;
+const { ga4Id, metaPixelId } = content.analytics;
 ---
 
 <!doctype html>

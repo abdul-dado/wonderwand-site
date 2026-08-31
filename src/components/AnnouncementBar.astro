@@ -1,12 +1,13 @@
 ---
 import { type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
-const a = site.announcement;
+const { lang, content = site } = Astro.props;
+const a = content.announcement;
 ---
 
 {

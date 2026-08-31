@@ -1,11 +1,12 @@
 ---
 import { type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 ---
 
 <section id="activities" class="mx-auto max-w-5xl scroll-mt-24 px-4 py-16">
@@ -15,7 +16,7 @@ const { lang } = Astro.props;
 
   <div class="mt-8 grid gap-4 sm:grid-cols-2">
     {
-      site.activities.map((a) => (
+      content.activities.map((a) => (
         <div class="rounded-2xl border border-grape-100 bg-white p-6 shadow-sm">
           <div class="text-3xl" aria-hidden="true">
             {a.emoji}
@@ -32,8 +33,8 @@ const { lang } = Astro.props;
       {lang === 'ar' ? 'الجوائز' : 'Prizes'}
     </h3>
     <ul class="mt-2 space-y-1 text-cream/85">
-      {site.prizes.map((p) => <li>🏆 {tx(p.title, lang)} — {tx(p.description, lang)}</li>)}
+      {content.prizes.map((p) => <li>🏆 {tx(p.title, lang)} — {tx(p.description, lang)}</li>)}
     </ul>
-    <p class="mt-3 text-sm text-cream/60">{tx(site.prizesNote, lang)}</p>
+    <p class="mt-3 text-sm text-cream/60">{tx(content.prizesNote, lang)}</p>
   </div>
 </section>

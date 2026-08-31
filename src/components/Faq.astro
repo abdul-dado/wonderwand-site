@@ -1,11 +1,12 @@
 ---
 import { type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 ---
 
 <section class="mx-auto max-w-3xl px-4 py-16">
@@ -14,7 +15,7 @@ const { lang } = Astro.props;
   </h2>
   <div class="mt-6 divide-y divide-grape-100 rounded-2xl border border-grape-100 bg-white">
     {
-      site.faq.map((f) => (
+      content.faq.map((f) => (
         <details class="group px-5 py-4">
           <summary class="flex cursor-pointer list-none items-center justify-between font-display font-bold text-ink">
             {tx(f.q, lang)}

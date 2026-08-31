@@ -1,13 +1,14 @@
 ---
 import { useTranslations, type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 
 interface Props {
   lang: Lang;
+  content?: SiteContent;
 }
-const { lang } = Astro.props;
+const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
-const e = site.event;
+const e = content.event;
 
 const dateFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
   weekday: 'long',
@@ -53,7 +54,7 @@ const rows = [
 
     <p class="mt-4 text-ink/80">{tx(e.address, lang)}</p>
     <p class="mt-1 text-sm font-semibold text-bubblegum">
-      {tx(site.registration.capacityNote, lang)}
+      {tx(content.registration.capacityNote, lang)}
     </p>
 
     {
