@@ -84,3 +84,25 @@
 [dir='rtl'] .flip-x {
   transform: scaleX(-1);
 }
+
+/* ------------------------------------------------------------------
+   Motion — gentle, playful, respects prefers-reduced-motion (base layer)
+------------------------------------------------------------------- */
+@keyframes ww-float {
+  0%, 100% { transform: translateY(0) rotate(var(--ww-rot, 0deg)); }
+  50% { transform: translateY(-14px) rotate(var(--ww-rot, 0deg)); }
+}
+@keyframes ww-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes ww-spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.ww-float { animation: ww-float 6s ease-in-out infinite; }
+.ww-float-slow { animation: ww-float 9s ease-in-out infinite; }
+.ww-twinkle { animation: ww-twinkle 3.5s ease-in-out infinite; }
+
+/* Blends the wand art's white backdrop into light sections */
+.ww-blend { mix-blend-mode: multiply; }

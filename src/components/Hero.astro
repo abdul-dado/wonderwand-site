@@ -1,7 +1,9 @@
 ---
+import { Image } from 'astro:assets';
 import { useTranslations, type Lang } from '@/i18n';
 import { site, tx } from '@/data/site';
 import Countdown from './Countdown.astro';
+import charactersImg from '@/assets/characters.jpg';
 
 interface Props {
   lang: Lang;
@@ -12,47 +14,74 @@ const t = useTranslations(lang);
 
 <section class="relative overflow-hidden bg-grape-900 text-cream">
   <div
-    class="pointer-events-none absolute inset-0 opacity-70"
+    class="pointer-events-none absolute inset-0 opacity-80"
     style="background:
-      radial-gradient(60% 50% at 15% 0%, rgba(122,69,236,.55), transparent 60%),
-      radial-gradient(50% 50% at 90% 20%, rgba(56,189,248,.35), transparent 60%),
-      radial-gradient(40% 40% at 70% 100%, rgba(255,111,181,.30), transparent 60%);"
+      radial-gradient(55% 45% at 12% 0%, rgba(122,69,236,.55), transparent 60%),
+      radial-gradient(45% 45% at 92% 15%, rgba(56,189,248,.32), transparent 60%),
+      radial-gradient(45% 40% at 75% 100%, rgba(255,111,181,.28), transparent 60%);"
     aria-hidden="true"
   >
   </div>
 
-  <div class="relative mx-auto max-w-4xl px-4 py-16 text-center sm:py-24">
-    <p class="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-      <span aria-hidden="true">🎉</span>{tx(site.hero.kicker, lang)}
-    </p>
+  <!-- floating stars -->
+  <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+    <span class="ww-twinkle absolute left-[8%] top-[18%] text-star">✦</span>
+    <span class="ww-twinkle absolute right-[10%] top-[12%] text-xl text-star" style="animation-delay:.8s">✦</span>
+    <span class="ww-twinkle absolute left-[20%] bottom-[16%] text-sm text-sky-bright" style="animation-delay:1.6s">✦</span>
+    <span class="ww-twinkle absolute right-[22%] bottom-[22%] text-star" style="animation-delay:2.2s">✦</span>
+  </div>
 
-    <h1 class="text-3xl font-extrabold sm:text-5xl">
-      {tx(site.hero.title, lang)}
-    </h1>
+  <div class="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:py-20 lg:grid-cols-[1.1fr_1fr]">
+    <div class="text-center lg:text-start">
+      <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold ring-1 ring-white/15">
+        <span aria-hidden="true">🎉</span>{tx(site.hero.kicker, lang)}
+      </p>
 
-    <p class="mx-auto mt-5 max-w-2xl text-base text-cream/85 sm:text-lg">
-      {tx(site.hero.subtitle, lang)}
-    </p>
+      <h1 class="text-3xl font-extrabold leading-[1.1] sm:text-5xl">
+        {tx(site.hero.title, lang)}
+      </h1>
 
-    <div class="mt-10">
-      <Countdown lang={lang} />
+      <p class="mx-auto mt-5 max-w-xl text-base text-cream/85 sm:text-lg lg:mx-0">
+        {tx(site.hero.subtitle, lang)}
+      </p>
+
+      <div class="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+        <a
+          href="#book"
+          class="rounded-full bg-star px-7 py-3 text-base font-extrabold text-grape-900 shadow-[0_12px_34px_-8px_rgba(255,210,63,.6)] transition hover:brightness-105 active:scale-95"
+        >
+          {t('cta.book')}
+        </a>
+        <a
+          href={site.social.youtube}
+          target="_blank"
+          rel="noopener"
+          class="rounded-full border border-white/25 px-7 py-3 text-base font-bold text-cream transition hover:bg-white/10"
+        >
+          YouTube ▶
+        </a>
+      </div>
     </div>
 
-    <div class="mt-10 flex flex-wrap justify-center gap-3">
-      <a
-        href="#book"
-        class="rounded-full bg-star px-7 py-3 text-base font-extrabold text-grape-900 shadow-[0_10px_30px_-8px_rgba(255,210,63,.6)] transition hover:brightness-105"
+    <div class="relative mx-auto max-w-xs sm:max-w-sm lg:max-w-none">
+      <div
+        class="absolute inset-0 -z-10 rounded-full blur-2xl"
+        style="background: radial-gradient(circle, rgba(255,210,63,.45), rgba(122,69,236,.2) 60%, transparent 72%);"
+        aria-hidden="true"
       >
-        {t('cta.book')}
-      </a>
-      <a
-        href={site.social.youtube}
-        target="_blank"
-        rel="noopener"
-        class="rounded-full border border-white/25 px-7 py-3 text-base font-bold text-cream hover:bg-white/10"
-      >
-        YouTube ▶
-      </a>
+      </div>
+      <Image
+        src={charactersImg}
+        alt={`${site.brandName} — ${tx(site.about.hosts, lang)}`}
+        width={520}
+        height={520}
+        class="ww-float relative mx-auto w-full rounded-full ring-4 ring-white/20 drop-shadow-2xl"
+        loading="eager"
+      />
     </div>
+  </div>
+
+  <div class="relative mx-auto max-w-6xl px-4 pb-16">
+    <Countdown lang={lang} />
   </div>
 </section>

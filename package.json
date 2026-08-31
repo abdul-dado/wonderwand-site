@@ -21,7 +21,8 @@
     "@fontsource/baloo-bhaijaan-2": "^5.2.5",
     "@fontsource/nunito": "^5.2.6",
     "@fontsource/tajawal": "^5.2.5",
-    "astro": "^5.13.0"
+    "astro": "^5.13.0",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
