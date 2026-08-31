@@ -11,7 +11,7 @@ import Faq from '@/components/Faq.astro';
 import Footer from '@/components/Footer.astro';
 import StickyCta from '@/components/StickyCta.astro';
 import { locales, type Lang } from '@/i18n';
-import { site, tx } from '@/data/site';
+import { site, tx, childPrice } from '@/data/site';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -24,6 +24,7 @@ const eventLd = {
   '@type': 'Event',
   name: tx(site.seo.title, lang),
   startDate: site.event.startsAt,
+  ...(site.event.endsAt ? { endDate: site.event.endsAt } : {}),
   eventStatus: 'https://schema.org/EventScheduled',
   eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
   description: tx(site.seo.description, lang),
@@ -37,6 +38,17 @@ const eventLd = {
     name: 'Wonder Wand',
     url: 'https://wonderwand.org',
   },
+  ...(site.registration.status === 'open'
+    ? {
+        offers: {
+          '@type': 'Offer',
+          price: childPrice(),
+          priceCurrency: site.registration.pricing.currency,
+          availability: 'https://schema.org/InStock',
+          url: 'https://wonderwand.org/' + lang + '/#book',
+        },
+      }
+    : {}),
   image: [new URL(site.seo.ogImage, Astro.site).href],
 };
 ---

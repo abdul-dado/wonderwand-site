@@ -81,6 +81,8 @@ export interface SiteContent {
     title: L;
     /** ISO 8601 with timezone. Countdown target. */
     startsAt: string;
+    /** ISO 8601 with timezone, or '' if not set. */
+    endsAt: string;
     timeConfirmed: boolean;
     doorsOpen: L;
     venueName: L;
@@ -178,12 +180,17 @@ export const site: SiteContent = {
       ar: 'تفاصيل الحدث',
       en: 'Event details',
     },
-    startsAt: '2026-10-03T16:00:00+03:00',
-    timeConfirmed: false,
+    startsAt: '2026-10-03T11:00:00+03:00',
+    endsAt: '2026-10-03T18:00:00+03:00',
+    timeConfirmed: true,
     doorsOpen: { ar: 'يُعلن قريبًا', en: 'Announced soon' },
-    venueName: { ar: 'يُعلن قريبًا', en: 'Announced soon' },
-    address: { ar: 'عمّان، الأردن', en: 'Amman, Jordan' },
-    googleMapsUrl: '',
+    venueName: { ar: 'روضة أكاديمية دفا', en: 'Dafa Academy' },
+    address: {
+      ar: 'شارع الخارجة، أكاديمية دفا، عمّان، الأردن',
+      en: 'Kharja Street, Dafa Academy, Amman, Jordan',
+    },
+    googleMapsUrl:
+      'https://www.google.com/maps/search/?api=1&query=Dafa%20Academy%20Kharja%20Street%20Amman',
     audience: {
       ar: 'للأطفال من 3 إلى 8 سنوات وأهاليهم',
       en: 'For children aged 3–8 and their families',
@@ -296,8 +303,8 @@ export const site: SiteContent = {
       en: 'After you submit, you will receive an email with the amount and the CliQ alias. Transfer within 24 hours, keep the receipt, and send it to us on WhatsApp along with your booking reference.',
     },
     capacityNote: {
-      ar: 'عدد المقاعد محدود، والحجز حسب الأسبقية.',
-      en: 'Seats are limited and allocated on a first-come, first-served basis.',
+      ar: 'المقاعد محدودة جدًا — 25 طفلًا فقط. الحجز حسب الأسبقية.',
+      en: 'Very limited — only 25 children. First come, first served.',
     },
   },
 

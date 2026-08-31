@@ -20,14 +20,18 @@ const timeFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
   minute: '2-digit',
 });
 const start = new Date(e.startsAt);
-const whenValue = e.timeConfirmed
-  ? `${dateFmt.format(start)} — ${timeFmt.format(start)}`
-  : dateFmt.format(start);
+const end = e.endsAt ? new Date(e.endsAt) : null;
+const dateValue = dateFmt.format(start);
+const timeValue = e.timeConfirmed
+  ? end
+    ? `${timeFmt.format(start)} – ${timeFmt.format(end)}`
+    : timeFmt.format(start)
+  : t('event.tbd');
 
 const rows = [
-  { label: t('event.when'), value: whenValue },
+  { label: t('event.when'), value: dateValue },
+  { label: t('event.time'), value: timeValue },
   { label: t('event.where'), value: tx(e.venueName, lang) },
-  { label: t('event.doors'), value: tx(e.doorsOpen, lang) },
 ];
 ---
 
@@ -47,7 +51,10 @@ const rows = [
       }
     </dl>
 
-    <p class="mt-4 text-sm text-ink/60">{tx(site.registration.capacityNote, lang)}</p>
+    <p class="mt-4 text-ink/80">{tx(e.address, lang)}</p>
+    <p class="mt-1 text-sm font-semibold text-bubblegum">
+      {tx(site.registration.capacityNote, lang)}
+    </p>
 
     {
       e.googleMapsUrl && (
