@@ -41,7 +41,7 @@ export default defineConfig({
   integrations: [
     ...sanityIntegration,
     sitemap({
-      filter: (page) => !page.includes('/studio'),
+      filter: (page) => !page.includes('/studio') && !page.includes('/checkin'),
       i18n: {
         defaultLocale: 'ar',
         locales: { ar: 'ar', en: 'en' },

@@ -1,0 +1,93 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+// Door check-in — staff only. Not linked anywhere, noindex.
+---
+
+<BaseLayout lang="en" path="/checkin/" title="Check-in — Wonder Wand" noindex>
+  <main class="mx-auto max-w-md px-4 py-14">
+    <h1 class="text-2xl font-extrabold text-ink">Door check-in</h1>
+    <p class="mt-1 text-sm text-ink/60">Staff only.</p>
+
+    <form id="ci" class="mt-6 space-y-3 rounded-2xl border border-grape-100 bg-white p-5 shadow-sm">
+      <div>
+        <label class="block text-sm font-semibold text-ink" for="pin">Staff PIN</label>
+        <input
+          id="pin"
+          type="password"
+          inputmode="numeric"
+          autocomplete="off"
+          class="mt-1 w-full rounded-xl border border-grape-200 px-3 py-2.5 outline-none focus:border-grape-500"
+        />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-ink" for="ref">Booking reference</label>
+        <input
+          id="ref"
+          placeholder="WW-XXXXXX"
+          autocapitalize="characters"
+          autocomplete="off"
+          class="mt-1 w-full rounded-xl border border-grape-200 px-3 py-2.5 uppercase outline-none focus:border-grape-500"
+        />
+      </div>
+      <button
+        type="submit"
+        class="w-full rounded-full bg-grape-600 px-6 py-3 text-base font-extrabold text-cream hover:bg-grape-700"
+      >
+        Look up
+      </button>
+    </form>
+
+    <div id="result" class="mt-5"></div>
+  </main>
+
+  <script is:inline>
+    const form = document.getElementById('ci');
+    const result = document.getElementById('result');
+    const pin = document.getElementById('pin');
+    const ref = document.getElementById('ref');
+
+    const call = async (action) => {
+      const res = await fetch('/api/checkin', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ pin: pin.value, ref: ref.value, action }),
+      });
+      return { status: res.status, data: await res.json().catch(() => ({})) };
+    };
+
+    const render = ({ status, data }) => {
+      if (status === 403) return (result.innerHTML = card('#ff8fb0', 'Wrong PIN'));
+      if (status === 404) return (result.innerHTML = card('#ff8fb0', 'Booking not found'));
+      if (status === 503) return (result.innerHTML = card('#ff8fb0', 'CMS not connected'));
+      const b = data.booking || {};
+      const kids = (b.children || []).map((c) => c.name + ' (' + c.age + ')').join(', ');
+      const paid = b.status === 'paid';
+      const done = b.status === 'checked_in' || data.already;
+      const tone = done ? '#4fd1a5' : status === 409 ? '#ffd24b' : paid ? '#5b32bd' : '#ff8fb0';
+      let msg = '<strong>' + (b.ref || '') + '</strong> — ' + (b.parentName || '') +
+        '<br>' + (b.childCount || 0) + ' child · ' + (b.adultCount || 0) + ' adult · ' +
+        (b.amount || 0) + ' ' + (b.currency || '') +
+        '<br><span style="opacity:.7">' + kids + '</span>' +
+        '<br>Status: <strong>' + (b.status || '') + '</strong>';
+      if (done) msg = '✅ Checked in<br>' + msg;
+      else if (status === 409) msg = '⚠️ Not paid yet — do not admit<br>' + msg;
+      result.innerHTML = card(tone, msg) +
+        (paid && !done
+          ? '<button id="do" style="margin-top:10px;width:100%;padding:12px;border:0;border-radius:999px;background:#4fd1a5;color:#0b3b2b;font-weight:800">Confirm check-in</button>'
+          : '');
+      const doBtn = document.getElementById('do');
+      if (doBtn) doBtn.onclick = async () => render(await call('checkin'));
+    };
+
+    const card = (color, html) =>
+      '<div style="border-left:5px solid ' + color +
+      ';background:#fff;border:1px solid #e7ddff;border-radius:12px;padding:14px;line-height:1.6">' +
+      html + '</div>';
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      result.innerHTML = '…';
+      render(await call('lookup'));
+    });
+  </script>
+</BaseLayout>

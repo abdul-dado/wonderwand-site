@@ -175,6 +175,38 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
   };
 }
 
+export function paymentConfirmedEmail(b: BookingRecord, content: SiteContent = site) {
+  const lang = b.lang;
+  const kids = b.children.map((c) => `${esc(c.name)} (${c.age})`).join('، ');
+  const inner =
+    lang === 'ar'
+      ? `<p style="margin:0 0 16px;line-height:1.6">تم تأكيد دفعتك 🎉 هذه تذكرتك لحضور احتفال Wonder Wand.</p>
+         <div style="background:#48258f;color:#fff;border-radius:12px;padding:20px;text-align:center;margin:16px 0">
+           <div style="font-size:12px;opacity:.8">رقم التذكرة</div>
+           <div style="font-size:26px;font-weight:800;letter-spacing:2px">${b.ref}</div>
+         </div>
+         <p style="margin:0 0 4px"><strong>الأطفال:</strong> ${esc(kids)}</p>
+         <p style="margin:0 0 4px"><strong>المرافقون:</strong> ${b.adultCount}</p>
+         <p style="margin:12px 0 0;line-height:1.6"><strong>الحدث:</strong> ${esc(eventLine(content, lang))}</p>
+         <p style="margin:12px 0 0;color:#6b5fa8;font-size:13px">أظهر هذه الرسالة أو رقم التذكرة عند الباب.</p>`
+      : `<p style="margin:0 0 16px;line-height:1.6">Your payment is confirmed 🎉 Here is your ticket for the Wonder Wand celebration.</p>
+         <div style="background:#48258f;color:#fff;border-radius:12px;padding:20px;text-align:center;margin:16px 0">
+           <div style="font-size:12px;opacity:.8">Ticket reference</div>
+           <div style="font-size:26px;font-weight:800;letter-spacing:2px">${b.ref}</div>
+         </div>
+         <p style="margin:0 0 4px"><strong>Children:</strong> ${esc(kids)}</p>
+         <p style="margin:0 0 4px"><strong>Adults:</strong> ${b.adultCount}</p>
+         <p style="margin:12px 0 0;line-height:1.6"><strong>Event:</strong> ${esc(eventLine(content, lang))}</p>
+         <p style="margin:12px 0 0;color:#6b5fa8;font-size:13px">Show this email or your reference at the door.</p>`;
+  return {
+    subject:
+      lang === 'ar'
+        ? `تذكرتك مؤكدة ${b.ref} — Wonder Wand`
+        : `Ticket confirmed ${b.ref} — Wonder Wand`,
+    html: shell(lang, lang === 'ar' ? 'تذكرتك جاهزة! 🎟️' : 'Your ticket is ready! 🎟️', inner),
+  };
+}
+
 export function teamNotifyEmail(b: BookingRecord, _content: SiteContent = site) {
   const inner = `<p style="margin:0 0 12px">New provisional booking — verify the CliQ transfer, then mark it <strong>paid</strong> in the CMS.</p>
     ${orderTable(b, 'en')}
