@@ -1,10 +1,26 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import cloudflare from '@astrojs/cloudflare';
 import sitemap from '@astrojs/sitemap';
+import sanity from '@sanity/astro';
+import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 const SITE_URL = process.env.SITE_URL || 'https://wonderwand.org';
+const SANITY_PROJECT_ID = process.env.PUBLIC_SANITY_PROJECT_ID || '';
+const SANITY_DATASET = process.env.PUBLIC_SANITY_DATASET || 'production';
+
+// The Sanity Studio (/studio) is only mounted once a project id is configured.
+const sanityIntegration = SANITY_PROJECT_ID
+  ? [
+      react(),
+      sanity({
+        projectId: SANITY_PROJECT_ID,
+        dataset: SANITY_DATASET,
+        useCdn: true,
+        studioBasePath: '/studio',
+      }),
+    ]
+  : [];
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,7 +39,9 @@ export default defineConfig({
     },
   },
   integrations: [
+    ...sanityIntegration,
     sitemap({
+      filter: (page) => !page.includes('/studio'),
       i18n: {
         defaultLocale: 'ar',
         locales: { ar: 'ar', en: 'en' },
