@@ -1,4 +1,4 @@
-import { site, tx } from '@/data/site';
+import { site, tx, type SiteContent } from '@/data/site';
 import type { Lang } from '@/i18n';
 
 export interface EmailEnv {
@@ -119,19 +119,31 @@ function orderTable(b: BookingRecord, lang: Lang): string {
     .join('')}</table>`;
 }
 
-function eventLine(lang: Lang): string {
-  const e = site.event;
-  return lang === 'ar'
-    ? `${tx(e.venueName, 'ar')} — ${tx(e.address, 'ar')} · السبت 3 أكتوبر 2026، 11:00 ص – 6:00 م`
-    : `${tx(e.venueName, 'en')} — ${tx(e.address, 'en')} · Sat 3 Oct 2026, 11:00–18:00`;
+function eventLine(content: SiteContent, lang: Lang): string {
+  const e = content.event;
+  const fmt = (iso: string) =>
+    new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(iso));
+  const date = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(e.startsAt));
+  const time = e.timeConfirmed
+    ? `${fmt(e.startsAt)}${e.endsAt ? ` – ${fmt(e.endsAt)}` : ''}`
+    : '';
+  return `${tx(e.venueName, lang)} — ${tx(e.address, lang)} · ${date}${time ? `, ${time}` : ''}`;
 }
 
-export function bookingReceivedEmail(b: BookingRecord) {
+export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = site) {
   const lang = b.lang;
-  const reg = site.registration;
+  const reg = content.registration;
   const alias = reg.cliqAlias || (lang === 'ar' ? 'سيُرسل لك قريباً' : 'sent to you shortly');
   const hours = reg.paymentWindowHours;
-  const wa = site.social.whatsapp;
+  const wa = content.social.whatsapp;
 
   const inner =
     lang === 'ar'
@@ -143,7 +155,7 @@ export function bookingReceivedEmail(b: BookingRecord) {
            2) احتفظ بصورة الإيصال<br>
            3) أرسل الإيصال${wa ? ` عبر واتساب (${esc(wa)})` : ''} مع رقم حجزك <strong>${b.ref}</strong>
          </div>
-         <p style="margin:0;line-height:1.6"><strong>الحدث:</strong> ${esc(eventLine(lang))}</p>`
+         <p style="margin:0;line-height:1.6"><strong>الحدث:</strong> ${esc(eventLine(content, lang))}</p>`
       : `<p style="margin:0 0 16px;line-height:1.6">Your booking is <strong>provisionally held</strong>. Complete payment within ${hours} hours to confirm it.</p>
          ${orderTable(b, lang)}
          <div style="background:#f4eeff;border-radius:12px;padding:16px;margin:16px 0;line-height:1.7">
@@ -152,7 +164,7 @@ export function bookingReceivedEmail(b: BookingRecord) {
            2) Keep a photo of the receipt<br>
            3) Send the receipt${wa ? ` on WhatsApp (${esc(wa)})` : ''} with your reference <strong>${b.ref}</strong>
          </div>
-         <p style="margin:0;line-height:1.6"><strong>Event:</strong> ${esc(eventLine(lang))}</p>`;
+         <p style="margin:0;line-height:1.6"><strong>Event:</strong> ${esc(eventLine(content, lang))}</p>`;
 
   return {
     subject:
@@ -163,7 +175,7 @@ export function bookingReceivedEmail(b: BookingRecord) {
   };
 }
 
-export function teamNotifyEmail(b: BookingRecord) {
+export function teamNotifyEmail(b: BookingRecord, _content: SiteContent = site) {
   const inner = `<p style="margin:0 0 12px">New provisional booking — verify the CliQ transfer, then mark it <strong>paid</strong> in the CMS.</p>
     ${orderTable(b, 'en')}
     <p style="margin:12px 0 0;font-size:13px;color:#6b5fa8">Email: ${esc(b.email)} · City: ${esc(b.city || '—')}</p>`;

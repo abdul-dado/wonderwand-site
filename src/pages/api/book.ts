@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import type { Lang } from '@/i18n';
-import { site, childPrice, isEarlyBird, findDiscount, discountAmount } from '@/data/site';
+import { childPrice, isEarlyBird, findDiscount, discountAmount } from '@/data/site';
+import { loadContent } from '@/lib/content';
 import { sendEmail, bookingReceivedEmail, teamNotifyEmail } from '@/lib/email';
 import { createBookingDoc } from '@/lib/sanity';
 
@@ -73,8 +74,11 @@ export const POST: APIRoute = async (context) => {
       : new Response(null, { status: 302, headers: { Location: `/${lang}/success/` } });
   }
 
+  const content = await loadContent(env);
+  const reg = content.registration;
+
   // 2. Registration must be open.
-  if (site.registration.status !== 'open') {
+  if (reg.status !== 'open') {
     return fail(403, 'registration_closed');
   }
 
@@ -88,7 +92,6 @@ export const POST: APIRoute = async (context) => {
   }
 
   // 4. Ticket quantities.
-  const reg = site.registration;
   const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
   const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
   const clamp = (v: unknown, max: number) =>
@@ -110,13 +113,13 @@ export const POST: APIRoute = async (context) => {
   }
   if (children.length !== childCount) return fail(422, 'child_count_mismatch');
 
-  const unitPrice = childPrice();
+  const unitPrice = childPrice(reg.pricing);
   const subtotal = childCount * unitPrice + adultCount * reg.pricing.adult;
   const totalSeats = childCount + adultCount;
 
   // Discount code (optional).
   const codeInput = get('discountCode');
-  const discount = codeInput ? findDiscount(codeInput) : null;
+  const discount = codeInput ? findDiscount(reg.discounts, codeInput) : null;
   const discountValue = discount ? discountAmount(subtotal, discount) : 0;
   const amount = Math.max(0, Math.round((subtotal - discountValue) * 100) / 100);
 
@@ -146,7 +149,7 @@ export const POST: APIRoute = async (context) => {
     discountValue,
     amount,
     currency: reg.pricing.currency,
-    earlyBird: isEarlyBird(),
+    earlyBird: isEarlyBird(reg.pricing),
     hearAbout: get('hearAbout'),
     lang,
     status: 'pending_payment' as const,
@@ -160,13 +163,13 @@ export const POST: APIRoute = async (context) => {
   const work = Promise.allSettled([
     createBookingDoc(env, booking),
     (async () => {
-      const mail = bookingReceivedEmail(booking);
+      const mail = bookingReceivedEmail(booking, content);
       return sendEmail(env, { to: booking.email, ...mail });
     })(),
     (async () => {
       const to = env.BOOKING_NOTIFY_EMAIL || env.BOOKING_FROM_EMAIL;
       if (!to) return;
-      return sendEmail(env, { to, replyTo: booking.email, ...teamNotifyEmail(booking) });
+      return sendEmail(env, { to, replyTo: booking.email, ...teamNotifyEmail(booking, content) });
     })(),
   ]);
   const waitUntil = (context.locals as any)?.runtime?.ctx?.waitUntil;

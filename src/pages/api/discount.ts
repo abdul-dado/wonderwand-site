@@ -1,13 +1,21 @@
 import type { APIRoute } from 'astro';
 import { findDiscount } from '@/data/site';
+import { loadContent } from '@/lib/content';
 
 export const prerender = false;
 
 /** GET /api/discount?code=XXXX&lang=ar — validate a discount code for the form. */
-export const GET: APIRoute = ({ url }) => {
+export const GET: APIRoute = async (context) => {
+  const url = new URL(context.request.url);
   const code = url.searchParams.get('code') ?? '';
   const lang = url.searchParams.get('lang') === 'en' ? 'en' : 'ar';
-  const d = findDiscount(code);
+
+  const env = {
+    ...(import.meta.env as any),
+    ...((context.locals as any)?.runtime?.env ?? {}),
+  };
+  const content = await loadContent(env);
+  const d = findDiscount(content.registration.discounts, code);
 
   const body = d
     ? { valid: true, code: d.code, type: d.type, value: d.value, label: d.label[lang] }

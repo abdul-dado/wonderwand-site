@@ -365,26 +365,30 @@ export function tx(value: L, lang: Lang): string {
 }
 
 /** True while early-bird pricing is still in effect. */
-export function isEarlyBird(now: Date = new Date()): boolean {
-  return now.getTime() <= new Date(site.registration.pricing.earlyBirdUntil).getTime();
+export function isEarlyBird(
+  pricing: Pricing = site.registration.pricing,
+  now: Date = new Date(),
+): boolean {
+  return now.getTime() <= new Date(pricing.earlyBirdUntil).getTime();
 }
 
 /** Child ticket price for the given moment (early-bird vs regular). */
-export function childPrice(now: Date = new Date()): number {
-  const p = site.registration.pricing;
-  return isEarlyBird(now) ? p.childEarlyBird : p.childRegular;
+export function childPrice(
+  pricing: Pricing = site.registration.pricing,
+  now: Date = new Date(),
+): number {
+  return isEarlyBird(pricing, now) ? pricing.childEarlyBird : pricing.childRegular;
 }
 
 /** Look up an active, non-expired discount code (case-insensitive). */
 export function findDiscount(
+  discounts: DiscountCode[],
   code: string,
   now: Date = new Date(),
 ): DiscountCode | null {
   const c = code.trim().toUpperCase();
   if (!c) return null;
-  const d = site.registration.discounts.find(
-    (x) => x.active && x.code.toUpperCase() === c,
-  );
+  const d = discounts.find((x) => x.active && x.code.toUpperCase() === c);
   if (!d) return null;
   if (d.expiresAt && now.getTime() > new Date(d.expiresAt).getTime()) return null;
   return d;
