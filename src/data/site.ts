@@ -190,7 +190,7 @@ export const site: SiteContent = {
       en: 'Kharja Street, Dafa Academy, Amman, Jordan',
     },
     googleMapsUrl:
-      'https://www.google.com/maps/search/?api=1&query=Dafa%20Academy%20Kharja%20Street%20Amman',
+      'https://www.google.com/maps/search/?api=1&query=%D8%B1%D9%88%D8%B6%D8%A9%20%D8%A3%D9%83%D8%A7%D8%AF%D9%8A%D9%85%D9%8A%D8%A9%20%D8%AF%D9%81%D8%A7%20%D8%B9%D9%85%D8%A7%D9%86',
     audience: {
       ar: 'للأطفال من 3 إلى 8 سنوات وأهاليهم',
       en: 'For children aged 3–8 and their families',

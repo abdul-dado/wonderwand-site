@@ -1,10 +1,15 @@
 import type { APIRoute } from 'astro';
+import type { Lang } from '@/i18n';
 import { site, childPrice, isEarlyBird, findDiscount, discountAmount } from '@/data/site';
+import { sendEmail, bookingReceivedEmail, teamNotifyEmail } from '@/lib/email';
+import { createBookingDoc } from '@/lib/sanity';
 
 export const prerender = false;
 
 interface Env {
   TURNSTILE_SECRET_KEY?: string;
+  PUBLIC_SANITY_PROJECT_ID?: string;
+  PUBLIC_SANITY_DATASET?: string;
   SANITY_PROJECT_ID?: string;
   SANITY_DATASET?: string;
   SANITY_WRITE_TOKEN?: string;
@@ -49,7 +54,7 @@ export const POST: APIRoute = async (context) => {
   const form = await request.formData();
   const get = (k: string) => String(form.get(k) ?? '').trim();
 
-  const lang = get('lang') === 'en' ? 'en' : 'ar';
+  const lang: Lang = get('lang') === 'en' ? 'en' : 'ar';
   const fail = (status: number, error: string) =>
     wantsJson
       ? new Response(JSON.stringify({ ok: false, error }), {
@@ -148,9 +153,25 @@ export const POST: APIRoute = async (context) => {
     createdAt: new Date().toISOString(),
   };
 
-  // TODO(phase 2): persist `booking` as a Sanity document (SANITY_WRITE_TOKEN).
-  // TODO(phase 3): send confirmation email + team notification via Resend.
   console.log('[booking]', JSON.stringify(booking));
+
+  // Persist + notify. Don't block the response on I/O when the platform lets
+  // us defer it.
+  const work = Promise.allSettled([
+    createBookingDoc(env, booking),
+    (async () => {
+      const mail = bookingReceivedEmail(booking);
+      return sendEmail(env, { to: booking.email, ...mail });
+    })(),
+    (async () => {
+      const to = env.BOOKING_NOTIFY_EMAIL || env.BOOKING_FROM_EMAIL;
+      if (!to) return;
+      return sendEmail(env, { to, replyTo: booking.email, ...teamNotifyEmail(booking) });
+    })(),
+  ]);
+  const waitUntil = (context.locals as any)?.runtime?.ctx?.waitUntil;
+  if (typeof waitUntil === 'function') waitUntil.call((context.locals as any).runtime.ctx, work);
+  else await work;
 
   if (wantsJson) {
     return new Response(JSON.stringify({ ok: true, ref }), {
