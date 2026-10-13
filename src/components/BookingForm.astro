@@ -9,7 +9,8 @@ interface Props {
 const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
 const reg = content.registration;
-const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY;
+// Public site key for the wonderwand.org Turnstile widget (secret stays in env).
+const turnstileKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '0x4AAAAAAFVcEqf4uxq3x6cK';
 
 const closed = reg.status !== 'open';
 const closedMsg =
