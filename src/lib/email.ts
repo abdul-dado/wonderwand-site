@@ -26,7 +26,7 @@ export interface BookingRecord {
   lang: Lang;
 }
 
-const FROM_FALLBACK = 'Wonder Wand <events@wonderwand.org>';
+const FROM_FALLBACK = 'Wonder Wand <info@wonderwand.org>';
 
 /** Low-level send. No-ops (logs) when RESEND_API_KEY is absent. */
 export async function sendEmail(
