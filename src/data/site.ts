@@ -337,7 +337,7 @@ export const site: SiteContent = {
     instagram: 'https://www.instagram.com/_wonderwand_/',
     tiktok: 'https://www.tiktok.com/@wonder_wand1',
     facebook: '',
-    whatsapp: '',
+    whatsapp: '962788564199',
     email: 'events@wonderwand.org',
   },
 
