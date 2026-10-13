@@ -6,7 +6,8 @@ import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 
 const SITE_URL = process.env.SITE_URL || 'https://wonderwand.org';
-const SANITY_PROJECT_ID = process.env.PUBLIC_SANITY_PROJECT_ID || '';
+// Project id is public by design; the write token stays in the env.
+const SANITY_PROJECT_ID = process.env.PUBLIC_SANITY_PROJECT_ID || 'b9izpb2i';
 const SANITY_DATASET = process.env.PUBLIC_SANITY_DATASET || 'production';
 
 // The Sanity Studio (/studio) is only mounted once a project id is configured.

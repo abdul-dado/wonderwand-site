@@ -17,7 +17,7 @@ interface SanityConfig {
 }
 
 export function sanityConfig(env: SanityEnv): SanityConfig | null {
-  const projectId = env.PUBLIC_SANITY_PROJECT_ID || env.SANITY_PROJECT_ID;
+  const projectId = env.PUBLIC_SANITY_PROJECT_ID || env.SANITY_PROJECT_ID || 'b9izpb2i';
   if (!projectId) return null;
   return {
     projectId,

@@ -8,7 +8,7 @@ const projectId =
   import.meta.env?.PUBLIC_SANITY_PROJECT_ID ||
   process.env.PUBLIC_SANITY_PROJECT_ID ||
   process.env.SANITY_STUDIO_PROJECT_ID ||
-  '';
+  'b9izpb2i';
 const dataset =
   import.meta.env?.PUBLIC_SANITY_DATASET ||
   process.env.PUBLIC_SANITY_DATASET ||
