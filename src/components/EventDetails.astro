@@ -10,15 +10,18 @@ const { lang, content = site } = Astro.props;
 const t = useTranslations(lang);
 const e = content.event;
 
+// Always render in event-local time: the build runs on UTC servers.
 const dateFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
   year: 'numeric',
+  timeZone: 'Asia/Amman',
 });
 const timeFmt = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
   hour: 'numeric',
   minute: '2-digit',
+  timeZone: 'Asia/Amman',
 });
 const start = new Date(e.startsAt);
 const end = e.endsAt ? new Date(e.endsAt) : null;

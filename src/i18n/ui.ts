@@ -11,7 +11,7 @@ export const ui = {
   ar: {
     'nav.about': 'عن Wonder Wand',
     'nav.event': 'الحدث',
-    'nav.activities': 'الفعاليات والجوائز',
+    'nav.activities': 'الفعاليات',
     'nav.book': 'احجز تذكرتك',
     'cta.book': 'احجز تذكرتك',
     'cta.bookShort': 'احجز الآن',
@@ -80,7 +80,7 @@ export const ui = {
   en: {
     'nav.about': 'About Wonder Wand',
     'nav.event': 'The Event',
-    'nav.activities': 'Activities & Prizes',
+    'nav.activities': 'Activities',
     'nav.book': 'Book Your Ticket',
     'cta.book': 'Book Your Ticket',
     'cta.bookShort': 'Book now',

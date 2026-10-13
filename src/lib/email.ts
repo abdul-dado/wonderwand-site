@@ -128,12 +128,14 @@ function eventLine(content: SiteContent, lang: Lang): string {
     new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
       hour: 'numeric',
       minute: '2-digit',
+      timeZone: 'Asia/Amman',
     }).format(new Date(iso));
   const date = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'Asia/Amman',
   }).format(new Date(e.startsAt));
   const time = e.timeConfirmed
     ? `${fmt(e.startsAt)}${e.endsAt ? ` – ${fmt(e.endsAt)}` : ''}`

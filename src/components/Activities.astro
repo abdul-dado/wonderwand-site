@@ -27,14 +27,4 @@ const { lang, content = site } = Astro.props;
       ))
     }
   </div>
-
-  <div class="mt-8 rounded-2xl bg-grape-900 p-6 text-cream">
-    <h3 class="font-display text-lg font-bold">
-      {lang === 'ar' ? 'الجوائز' : 'Prizes'}
-    </h3>
-    <ul class="mt-2 space-y-1 text-cream/85">
-      {content.prizes.map((p) => <li>🏆 {tx(p.title, lang)} — {tx(p.description, lang)}</li>)}
-    </ul>
-    <p class="mt-3 text-sm text-cream/60">{tx(content.prizesNote, lang)}</p>
-  </div>
 </section>
