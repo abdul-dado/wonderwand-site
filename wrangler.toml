@@ -1,0 +1,6 @@
+# Cloudflare Pages project config (read by Pages git builds).
+# Runtime env vars/secrets are set in the Pages dashboard, not here.
+name = "wonderwand"
+compatibility_date = "2025-08-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
