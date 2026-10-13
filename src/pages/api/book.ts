@@ -91,6 +91,14 @@ export const POST: APIRoute = async (context) => {
     return fail(422, 'invalid_input');
   }
 
+  // "How did you hear about us" is required; "other" needs free text.
+  const HEAR = ['academy', 'social', 'friend', 'other'] as const;
+  const hearChoice = get('hearAbout');
+  const hearOther = get('hearAboutOther');
+  if (!(HEAR as readonly string[]).includes(hearChoice)) return fail(422, 'hear_about');
+  if (hearChoice === 'other' && !hearOther) return fail(422, 'hear_about');
+  const hearAbout = hearChoice === 'other' ? `other: ${hearOther}` : hearChoice;
+
   // 4. Ticket quantities.
   const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
   const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
@@ -150,7 +158,7 @@ export const POST: APIRoute = async (context) => {
     amount,
     currency: reg.pricing.currency,
     earlyBird: isEarlyBird(reg.pricing),
-    hearAbout: get('hearAbout'),
+    hearAbout,
     lang,
     status: 'pending_payment' as const,
     createdAt: new Date().toISOString(),

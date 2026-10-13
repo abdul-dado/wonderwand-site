@@ -166,8 +166,8 @@ export const site: SiteContent = {
       en: 'About Wonder Wand',
     },
     body: {
-      ar: 'Wonder Wand هي قناة تعليمية وترفيهية للأطفال، تقدم محتوى ممتعًا وتفاعليًا باللغتين العربية والإنجليزية. نساعد الأطفال على تعلّم الحروف والكلمات والمفردات والأرقام والألوان والمفاهيم اليومية بطريقة بسيطة ومحببة، من خلال القصص والرحلات والألعاب والمواقف التعليمية.',
-      en: 'Wonder Wand is an educational and entertaining channel for children, offering fun and interactive content in both Arabic and English. We help children learn letters, words, vocabulary, numbers, colors, and everyday concepts through stories, adventures, games, and engaging learning experiences.',
+      ar: 'Wonder Wand هي قناة تعليمية وترفيهية للأطفال، تقدم محتوى ممتعًا وتفاعليًا باللغتين العربية والإنجليزية. نساعد الأطفال على تعلّم الحروف والكلمات والمفردات والأرقام والألوان والمفاهيم اليومية بطريقة بسيطة ومحببة، من خلال القصص والرحلات والألعاب والمواقف التعليمية. كما نحرص على غرس القيم والمبادئ الإسلامية في محتوانا بأسلوب قريب من قلوب الأطفال.',
+      en: 'Wonder Wand is an educational and entertaining channel for children, offering fun and interactive content in both Arabic and English. We help children learn letters, words, vocabulary, numbers, colors, and everyday concepts through stories, adventures, games, and engaging learning experiences. We also take care to instil Islamic values and principles in our content, in a way children love.',
     },
     hosts: {
       ar: 'مع رهف وهيلا',
@@ -180,8 +180,8 @@ export const site: SiteContent = {
       ar: 'تفاصيل الحدث',
       en: 'Event details',
     },
-    startsAt: '2026-10-03T11:00:00+03:00',
-    endsAt: '2026-10-03T18:00:00+03:00',
+    startsAt: '2026-11-07T11:00:00+03:00',
+    endsAt: '2026-11-07T13:30:00+03:00',
     timeConfirmed: true,
     doorsOpen: { ar: 'يُعلن قريبًا', en: 'Announced soon' },
     venueName: { ar: 'روضة أكاديمية دفا', en: 'Dafa Academy' },
@@ -199,7 +199,7 @@ export const site: SiteContent = {
 
   activities: [
     {
-      emoji: '🎮',
+      emoji: '🎈',
       title: { ar: 'ألعاب للأطفال', en: 'Kids games' },
       description: {
         ar: 'محطات ألعاب تفاعلية آمنة ومناسبة لكل الأعمار.',
@@ -210,8 +210,8 @@ export const site: SiteContent = {
       emoji: '🏆',
       title: { ar: 'مسابقات وجوائز', en: 'Contests & prizes' },
       description: {
-        ar: 'مسابقات على مدار اليوم مع جوائز قيّمة للفائزين.',
-        en: 'Contests throughout the day with great prizes for winners.',
+        ar: 'مسابقات تعليمية ترفيهية مع جوائز قيّمة للفائزين.',
+        en: 'Fun educational contests with great prizes for the winners.',
       },
     },
     {
@@ -234,10 +234,10 @@ export const site: SiteContent = {
 
   prizes: [
     {
-      title: { ar: 'الجوائز الكبرى', en: 'Grand prizes' },
+      title: { ar: 'جوائز للفائزين بالمسابقات', en: 'Prizes for contest winners' },
       description: {
-        ar: 'قائمة الجوائز النهائية تُعلن قريبًا.',
-        en: 'The full prize list will be announced soon.',
+        ar: 'تُعلن قائمة الجوائز قريبًا.',
+        en: 'The prize list will be announced soon.',
       },
     },
   ],
@@ -273,9 +273,9 @@ export const site: SiteContent = {
     pricing: {
       currency: 'JOD',
       childEarlyBird: 15,
-      childRegular: 20,
+      childRegular: 15,
       adult: 0,
-      earlyBirdUntil: '2026-09-15T23:59:59+03:00',
+      earlyBirdUntil: '2026-11-07T11:00:00+03:00',
     },
     discounts: [
       // Example — set active: true (or add your own codes):
@@ -295,12 +295,12 @@ export const site: SiteContent = {
       },
     ],
     childAges: [3, 4, 5, 6, 7, 8],
-    cliqAlias: '',
-    cliqName: { ar: 'يُعلن عند تأكيد الحجز', en: 'Shared on booking' },
+    cliqAlias: 'Wonderwand',
+    cliqName: { ar: 'Wonderwand', en: 'Wonderwand' },
     paymentWindowHours: 24,
     paymentInstructions: {
-      ar: 'بعد إرسال الحجز ستصلك رسالة بريد إلكتروني فيها المبلغ واسم CliQ المستعار. حوّل المبلغ خلال 24 ساعة واحتفظ بالإيصال، ثم أرسله عبر واتساب مع رقم حجزك.',
-      en: 'After you submit, you will receive an email with the amount and the CliQ alias. Transfer within 24 hours, keep the receipt, and send it to us on WhatsApp along with your booking reference.',
+      ar: 'بعد ما تبعت الحجز بيطلعلك رقم حجز خاص فيك. حوّل المبلغ عبر CliQ إلى الاسم المستعار Wonderwand خلال 24 ساعة، ثم اضغط زر واتساب وابعتلنا صورة الإيصال — رقم حجزك بيكون جاهز بالرسالة.',
+      en: 'After you submit, you get your own booking reference. Transfer the amount via CliQ to the alias Wonderwand within 24 hours, then tap the WhatsApp button and send us a photo of the receipt — your reference is already in the message.',
     },
     capacityNote: {
       ar: 'المقاعد محدودة جدًا — 25 طفلًا فقط. الحجز حسب الأسبقية.',
@@ -326,8 +326,8 @@ export const site: SiteContent = {
     {
       q: { ar: 'متى يبدأ الحدث؟', en: 'When does the event start?' },
       a: {
-        ar: 'يوم 3 أكتوبر 2026. التوقيت الدقيق والمكان يُعلنان قريبًا وتصل التفاصيل لكل من حجز.',
-        en: 'On 3 October 2026. The exact time and venue will be announced soon and sent to everyone who booked.',
+        ar: 'السبت 7 نوفمبر 2026 من 11:00 صباحًا حتى 1:30 ظهرًا في روضة أكاديمية دفا، عمّان. التفاصيل تصل لكل من حجز.',
+        en: 'Saturday 7 November 2026, 11:00 AM to 1:30 PM at Dafa Academy, Amman. Details are sent to everyone who booked.',
       },
     },
   ],
@@ -352,12 +352,26 @@ export const site: SiteContent = {
       en: 'Wonder Wand — 100K Subscribers Celebration',
     },
     description: {
-      ar: 'احجز مكانك في احتفال Wonder Wand بوصول القناة إلى 100 ألف مشترك: ألعاب، مسابقات، جوائز ولقاء مباشر مع Wonder Wand في عمّان يوم 3 أكتوبر 2026.',
-      en: 'Book your seat at the Wonder Wand 100K subscribers celebration: games, contests, prizes and a live meet-up with Wonder Wand in Amman on 3 October 2026.',
+      ar: 'احجز مكانك في احتفال Wonder Wand بوصول القناة إلى 100 ألف مشترك: ألعاب، مسابقات، جوائز ولقاء مباشر مع Wonder Wand في عمّان يوم 7 نوفمبر 2026.',
+      en: 'Book your seat at the Wonder Wand 100K subscribers celebration: games, contests, prizes and a live meet-up with Wonder Wand in Amman on 7 November 2026.',
     },
     ogImage: '/og-default.png',
   },
 };
+
+/**
+ * wa.me link for a WhatsApp number (digits, with country code) or an existing
+ * wa.me/https link. `text` is pre-filled in the chat. Empty input → ''.
+ */
+export function waHref(whatsapp: string, text?: string): string {
+  if (!whatsapp) return '';
+  const base = whatsapp.startsWith('http')
+    ? whatsapp
+    : `https://wa.me/${whatsapp.replace(/[^\d]/g, '')}`;
+  if (!text) return base;
+  const sep = base.includes('?') ? '&' : '?';
+  return `${base}${sep}text=${encodeURIComponent(text)}`;
+}
 
 /** Convenience: collapse a localized field to a plain string. */
 export function tx(value: L, lang: Lang): string {

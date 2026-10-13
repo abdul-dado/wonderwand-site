@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import { useTranslations, localizedPath, locales, type Lang } from '@/i18n';
-import { tx } from '@/data/site';
+import { tx, waHref } from '@/data/site';
 import { loadContent } from '@/lib/content';
 
 export function getStaticPaths() {
@@ -14,6 +14,13 @@ const lang = Astro.params.lang as Lang;
 const t = useTranslations(lang);
 const title = t('success.title');
 const content = await loadContent();
+const reg = content.registration;
+// The pre-filled WhatsApp message; the client swaps {ref} for the real reference.
+const waTemplate =
+  lang === 'ar'
+    ? 'مرحباً، هذا إيصال الدفع لحجز رقم {ref}.'
+    : 'Hi, here is the payment receipt for booking {ref}.';
+const waBase = waHref(content.social.whatsapp);
 ---
 
 <BaseLayout lang={lang} path="/success/" title={`${title} — Wonder Wand`} noindex content={content}>
@@ -31,15 +38,40 @@ const content = await loadContent();
     </p>
 
     <div class="mt-6 rounded-2xl border border-grape-100 bg-white p-6 text-start text-ink/80">
-      {tx(content.registration.paymentInstructions, lang)}
+      <p>{tx(reg.paymentInstructions, lang)}</p>
+      {
+        reg.cliqAlias && (
+          <p class="mt-4 rounded-xl bg-grape-50 px-4 py-3 text-center font-display text-lg font-bold text-grape-700">
+            CliQ: <span dir="ltr">{reg.cliqAlias}</span>
+          </p>
+        )
+      }
     </div>
 
-    <a
-      href={localizedPath(lang, '/')}
-      class="mt-8 inline-block rounded-full bg-grape-600 px-6 py-3 font-bold text-cream hover:bg-grape-700"
-    >
-      {t('success.back')}
-    </a>
+    {
+      waBase && (
+        <a
+          id="wa-btn"
+          href={waBase}
+          target="_blank"
+          rel="noopener"
+          data-base={waBase}
+          data-template={waTemplate}
+          class="mt-6 inline-block rounded-full bg-[#25d366] px-7 py-3.5 text-base font-extrabold text-white shadow-sm hover:brightness-95"
+        >
+          💬 {t('success.whatsapp')}
+        </a>
+      )
+    }
+
+    <div>
+      <a
+        href={localizedPath(lang, '/')}
+        class="mt-6 inline-block rounded-full border border-grape-200 px-6 py-3 font-bold text-grape-700 hover:bg-grape-50"
+      >
+        {t('success.back')}
+      </a>
+    </div>
   </main>
   <Footer lang={lang} content={content} />
 
@@ -52,6 +84,12 @@ const content = await loadContent();
       if (v && badge) {
         v.textContent = ref;
         badge.classList.remove('hidden');
+      }
+      var wa = document.getElementById('wa-btn');
+      if (wa) {
+        var text = (wa.dataset.template || '').replace('{ref}', ref);
+        var base = wa.dataset.base || '';
+        wa.href = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'text=' + encodeURIComponent(text);
       }
     })();
   </script>

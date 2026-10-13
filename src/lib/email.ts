@@ -1,4 +1,4 @@
-import { site, tx, type SiteContent } from '@/data/site';
+import { site, tx, waHref, type SiteContent } from '@/data/site';
 import type { Lang } from '@/i18n';
 
 export interface EmailEnv {
@@ -143,7 +143,16 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
   const reg = content.registration;
   const alias = reg.cliqAlias || (lang === 'ar' ? 'سيُرسل لك قريباً' : 'sent to you shortly');
   const hours = reg.paymentWindowHours;
-  const wa = content.social.whatsapp;
+  const waMsg =
+    lang === 'ar'
+      ? `مرحباً، هذا إيصال الدفع لحجز رقم ${b.ref} باسم ${b.parentName}.`
+      : `Hi, here is the payment receipt for booking ${b.ref} (${b.parentName}).`;
+  const waUrl = waHref(content.social.whatsapp, waMsg);
+  const wa = waUrl
+    ? `<a href="${waUrl}" style="display:inline-block;margin-top:8px;padding:10px 18px;border-radius:999px;background:#25d366;color:#fff;font-weight:800;text-decoration:none">${
+        lang === 'ar' ? 'ابعت الإيصال عبر واتساب' : 'Send the receipt on WhatsApp'
+      }</a>`
+    : '';
 
   const inner =
     lang === 'ar'
@@ -153,7 +162,7 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
            <strong>خطوات الدفع (CliQ):</strong><br>
            1) حوّل <strong>${b.amount} ${b.currency}</strong> إلى الاسم المستعار: <strong>${esc(alias)}</strong><br>
            2) احتفظ بصورة الإيصال<br>
-           3) أرسل الإيصال${wa ? ` عبر واتساب (${esc(wa)})` : ''} مع رقم حجزك <strong>${b.ref}</strong>
+           3) أرسل صورة الإيصال عبر واتساب مع رقم حجزك <strong>${b.ref}</strong><br>${wa}
          </div>
          <p style="margin:0;line-height:1.6"><strong>الحدث:</strong> ${esc(eventLine(content, lang))}</p>`
       : `<p style="margin:0 0 16px;line-height:1.6">Your booking is <strong>provisionally held</strong>. Complete payment within ${hours} hours to confirm it.</p>
@@ -162,7 +171,7 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
            <strong>Payment steps (CliQ):</strong><br>
            1) Transfer <strong>${b.amount} ${b.currency}</strong> to the CliQ alias: <strong>${esc(alias)}</strong><br>
            2) Keep a photo of the receipt<br>
-           3) Send the receipt${wa ? ` on WhatsApp (${esc(wa)})` : ''} with your reference <strong>${b.ref}</strong>
+           3) Send a photo of the receipt on WhatsApp with your reference <strong>${b.ref}</strong><br>${wa}
          </div>
          <p style="margin:0;line-height:1.6"><strong>Event:</strong> ${esc(eventLine(content, lang))}</p>`;
 

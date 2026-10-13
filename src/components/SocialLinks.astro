@@ -1,5 +1,5 @@
 ---
-import { site, type SiteContent } from '@/data/site';
+import { site, waHref, type SiteContent } from '@/data/site';
 
 interface Props {
   class?: string;
@@ -7,17 +7,12 @@ interface Props {
 }
 const { class: className = '', social = site.social } = Astro.props;
 
-const waHref = social.whatsapp
-  ? social.whatsapp.startsWith('http')
-    ? social.whatsapp
-    : `https://wa.me/${social.whatsapp.replace(/[^\d]/g, '')}`
-  : '';
 const links = [
   { key: 'youtube', href: social.youtube, label: 'YouTube' },
   { key: 'instagram', href: social.instagram, label: 'Instagram' },
   { key: 'tiktok', href: social.tiktok, label: 'TikTok' },
   { key: 'facebook', href: social.facebook, label: 'Facebook' },
-  { key: 'whatsapp', href: waHref, label: 'WhatsApp' },
+  { key: 'whatsapp', href: waHref(social.whatsapp), label: 'WhatsApp' },
   {
     key: 'email',
     href: social.email ? `mailto:${social.email}` : '',
