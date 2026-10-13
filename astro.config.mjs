@@ -51,5 +51,35 @@ export default defineConfig({
   ],
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        output: {
+          // The React server renderer (pulled in by the embedded Sanity Studio)
+          // calls `new MessageChannel()` at module scope; Cloudflare Workers
+          // don't provide it, so the worker failed to publish. Shim it in the
+          // server-side renderers chunk only.
+          banner: (chunk) =>
+            chunk.fileName.includes('renderers') ? MESSAGE_CHANNEL_SHIM : '',
+        },
+      },
+    },
   },
 });
+
+const MESSAGE_CHANNEL_SHIM = `if (typeof globalThis.MessageChannel === 'undefined') {
+  globalThis.MessageChannel = class MessageChannel {
+    constructor() {
+      const port1 = { onmessage: null, close() {}, start() {} };
+      const port2 = {
+        postMessage(data) {
+          setTimeout(() => port1.onmessage && port1.onmessage({ data }), 0);
+        },
+        close() {},
+        start() {},
+      };
+      this.port1 = port1;
+      this.port2 = port2;
+    }
+  };
+}
+`;
