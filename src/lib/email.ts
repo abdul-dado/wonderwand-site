@@ -40,6 +40,9 @@ export async function sendEmail(
   const from = env.BOOKING_FROM_EMAIL
     ? `Wonder Wand <${env.BOOKING_FROM_EMAIL}>`
     : FROM_FALLBACK;
+  // Replies from parents land in the team inbox (a Gmail address is fine here;
+  // only the From address has to be on the verified sending domain).
+  const replyTo = msg.replyTo ?? env.BOOKING_NOTIFY_EMAIL;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -52,7 +55,7 @@ export async function sendEmail(
         to: msg.to,
         subject: msg.subject,
         html: msg.html,
-        ...(msg.replyTo ? { reply_to: msg.replyTo } : {}),
+        ...(replyTo ? { reply_to: replyTo } : {}),
       }),
     });
     if (!res.ok) {
@@ -194,6 +197,7 @@ export function paymentConfirmedEmail(b: BookingRecord, content: SiteContent = s
            <div style="font-size:12px;opacity:.8">رقم التذكرة</div>
            <div style="font-size:26px;font-weight:800;letter-spacing:2px">${b.ref}</div>
          </div>
+         <p style="margin:0 0 4px"><strong>باسم:</strong> ${esc(b.parentName)}</p>
          <p style="margin:0 0 4px"><strong>الأطفال:</strong> ${esc(kids)}</p>
          <p style="margin:0 0 4px"><strong>المرافقون:</strong> ${b.adultCount}</p>
          <p style="margin:12px 0 0;line-height:1.6"><strong>الحدث:</strong> ${esc(eventLine(content, lang))}</p>
@@ -203,6 +207,7 @@ export function paymentConfirmedEmail(b: BookingRecord, content: SiteContent = s
            <div style="font-size:12px;opacity:.8">Ticket reference</div>
            <div style="font-size:26px;font-weight:800;letter-spacing:2px">${b.ref}</div>
          </div>
+         <p style="margin:0 0 4px"><strong>Name:</strong> ${esc(b.parentName)}</p>
          <p style="margin:0 0 4px"><strong>Children:</strong> ${esc(kids)}</p>
          <p style="margin:0 0 4px"><strong>Adults:</strong> ${b.adultCount}</p>
          <p style="margin:12px 0 0;line-height:1.6"><strong>Event:</strong> ${esc(eventLine(content, lang))}</p>
@@ -213,6 +218,42 @@ export function paymentConfirmedEmail(b: BookingRecord, content: SiteContent = s
         ? `تذكرتك مؤكدة ${b.ref} — Wonder Wand`
         : `Ticket confirmed ${b.ref} — Wonder Wand`,
     html: shell(lang, lang === 'ar' ? 'تذكرتك جاهزة! 🎟️' : 'Your ticket is ready! 🎟️', inner),
+  };
+}
+
+export interface PaidRow {
+  ref: string;
+  parentName: string;
+  phone: string;
+  childCount: number;
+  adultCount: number;
+  amount: number;
+  paidAt?: string;
+}
+
+/** Owner copy, sent each time a booking is confirmed: the ticket + the full paid list. */
+export function paidListEmail(
+  b: BookingRecord,
+  paid: PaidRow[],
+  _content: SiteContent = site,
+) {
+  const totalKids = paid.reduce((n, r) => n + (r.childCount || 0), 0);
+  const totalAmt = paid.reduce((n, r) => n + (r.amount || 0), 0);
+  const rows = paid
+    .map(
+      (r) =>
+        `<tr><td style="padding:5px 6px;border-bottom:1px solid #eee"><strong>${esc(r.ref)}</strong></td><td style="padding:5px 6px;border-bottom:1px solid #eee">${esc(r.parentName)}</td><td style="padding:5px 6px;border-bottom:1px solid #eee">${esc(r.phone)}</td><td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:center">${r.childCount}+${r.adultCount}</td><td style="padding:5px 6px;border-bottom:1px solid #eee;text-align:right">${r.amount}</td></tr>`,
+    )
+    .join('');
+  const inner = `<p style="margin:0 0 12px">Ticket sent to <strong>${esc(b.parentName)}</strong> (${esc(b.email)}) for <strong>${b.ref}</strong> — ${b.amount} ${b.currency}.</p>
+    <h2 style="margin:16px 0 8px;font-size:16px">Paid bookings (${paid.length}) — ${totalKids} children · ${totalAmt} ${b.currency}</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <tr style="color:#6b5fa8"><th align="left" style="padding:5px 6px">Ref</th><th align="left" style="padding:5px 6px">Name</th><th align="left" style="padding:5px 6px">WhatsApp</th><th style="padding:5px 6px">Kids+Adults</th><th align="right" style="padding:5px 6px">${b.currency}</th></tr>
+      ${rows}
+    </table>`;
+  return {
+    subject: `✅ Paid ${b.ref} — ${b.parentName} · ${paid.length} paid so far`,
+    html: shell('en', `Payment confirmed ${b.ref}`, inner),
   };
 }
 

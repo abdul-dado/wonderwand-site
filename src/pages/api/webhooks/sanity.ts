@@ -1,7 +1,13 @@
 import type { APIRoute } from 'astro';
 import { loadContent } from '@/lib/content';
-import { sendEmail, paymentConfirmedEmail, type BookingRecord } from '@/lib/email';
-import { sanityConfig } from '@/lib/sanity';
+import {
+  sendEmail,
+  paymentConfirmedEmail,
+  paidListEmail,
+  type BookingRecord,
+  type PaidRow,
+} from '@/lib/email';
+import { sanityConfig, sanityFetch } from '@/lib/sanity';
 
 export const prerender = false;
 
@@ -66,6 +72,30 @@ export const POST: APIRoute = async (context) => {
   } as BookingRecord;
 
   await sendEmail(env, { to: booking.email, ...paymentConfirmedEmail(booking, content) });
+
+  // Owner copy: this ticket + the running list of everyone who has paid.
+  const owner = env.BOOKING_NOTIFY_EMAIL || env.BOOKING_FROM_EMAIL;
+  if (owner) {
+    const paid =
+      (await sanityFetch<PaidRow[]>(
+        env,
+        `*[_type == "booking" && status in ["paid", "checked_in"]] | order(paidAt asc, createdAt asc){
+          ref, parentName, phone, childCount, adultCount, amount, paidAt
+        }`,
+      ).catch(() => null)) ?? [];
+    // The doc we just handled may not carry paidAt yet; make sure it's listed.
+    if (!paid.some((r) => r.ref === booking.ref)) {
+      paid.push({
+        ref: booking.ref,
+        parentName: booking.parentName,
+        phone: booking.phone,
+        childCount: booking.childCount,
+        adultCount: booking.adultCount,
+        amount: booking.amount,
+      });
+    }
+    await sendEmail(env, { to: owner, replyTo: booking.email, ...paidListEmail(booking, paid, content) });
+  }
 
   // stamp paidAt so a re-fire doesn't re-send
   const cfg = sanityConfig(env);

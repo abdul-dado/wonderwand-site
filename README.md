@@ -87,8 +87,8 @@ Set the same `SANITY_WEBHOOK_SECRET` in the Cloudflare env.
 2. Cloudflare env:
    ```
    RESEND_API_KEY=re_xxx
-   BOOKING_FROM_EMAIL=events@wonderwand.org
-   BOOKING_NOTIFY_EMAIL=events@wonderwand.org
+   BOOKING_FROM_EMAIL=events@wonderwand.org      # must be on the verified domain
+   BOOKING_NOTIFY_EMAIL=englishnest.10@gmail.com  # team inbox + reply-to
    ```
    To *receive* mail at that address, add Cloudflare Email Routing (free
    forwarding) or Google Workspace.
