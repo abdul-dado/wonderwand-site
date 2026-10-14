@@ -19,6 +19,8 @@ const closedMsg =
 const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
 const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
 const cur = reg.pricing.currency;
+// Visitors read "دينار" more naturally than the ISO code.
+const curLabel = lang === 'ar' && cur === 'JOD' ? 'دينار' : cur;
 const price = childPrice(reg.pricing);
 const hasEarlyBird = reg.pricing.childEarlyBird !== reg.pricing.childRegular;
 const earlyBird = hasEarlyBird && isEarlyBird(reg.pricing);
@@ -32,7 +34,7 @@ const earlyBirdUntilText = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en
 }).format(new Date(earlyBirdUntilIso));
 const earlyBirdActiveText = t('tickets.earlyBirdActive')
   .replace('{date}', earlyBirdUntilText)
-  .replace('{regular}', `${reg.pricing.childRegular} ${reg.pricing.currency}`);
+  .replace('{regular}', `${reg.pricing.childRegular} ${curLabel}`);
 const maxChildren = childTt.perOrderLimit;
 // The discount box only appears when at least one code is active in the CMS.
 const showDiscount = reg.discounts.some((d) => d.active);
@@ -49,17 +51,17 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
           {hasEarlyBird ? (
             <>
               <span data-eb="on" class:list={[{ hidden: !earlyBird }]}>
-                <strong class="text-grape-700">{reg.pricing.childEarlyBird} {cur}</strong>{' '}
+                <strong class="text-grape-700">{reg.pricing.childEarlyBird} {curLabel}</strong>{' '}
                 {lang === 'ar' ? 'للطفل' : 'per child'} · {earlyBirdActiveText}
               </span>
               <span data-eb="off" class:list={[{ hidden: earlyBird }]}>
-                <strong class="text-grape-700">{reg.pricing.childRegular} {cur}</strong>{' '}
+                <strong class="text-grape-700">{reg.pricing.childRegular} {curLabel}</strong>{' '}
                 {lang === 'ar' ? 'للطفل' : 'per child'} · {t('tickets.earlyBirdEnded')}
               </span>
             </>
           ) : (
             <span>
-              <strong class="text-grape-700">{reg.pricing.childRegular} {cur}</strong>{' '}
+              <strong class="text-grape-700">{reg.pricing.childRegular} {curLabel}</strong>{' '}
               {lang === 'ar' ? 'للطفل' : 'per child'}
             </span>
           )}
@@ -86,7 +88,7 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
           data-child-early-price={reg.pricing.childEarlyBird}
           data-child-regular-price={reg.pricing.childRegular}
           data-early-bird-until={hasEarlyBird ? earlyBirdUntilIso : ''}
-          data-currency={cur}
+          data-currency={curLabel}
           data-child-label={t('form.child')}
           data-code-ok={t('form.discountApplied')}
           data-code-bad={t('form.discountInvalid')}
@@ -179,14 +181,14 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
                 <p class="text-xs text-ink/60">
                   <span data-eb="on" class:list={[{ hidden: !earlyBird }]}>
                     <span class="font-bold text-grape-700">
-                      {reg.pricing.childEarlyBird} {cur}
+                      {reg.pricing.childEarlyBird} {curLabel}
                     </span>
                     <span class="text-grape-500">
                       {' '}· {t('tickets.earlyBird')} — {earlyBirdActiveText}
                     </span>
                   </span>
                   <span data-eb="off" class:list={[{ hidden: earlyBird }]}>
-                    <span class="font-bold text-ink">{reg.pricing.childRegular} {cur}</span>
+                    <span class="font-bold text-ink">{reg.pricing.childRegular} {curLabel}</span>
                     {hasEarlyBird && (
                       <span class="text-ink/50"> · {t('tickets.earlyBirdEnded')}</span>
                     )}
