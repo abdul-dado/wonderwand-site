@@ -273,9 +273,9 @@ export const site: SiteContent = {
     pricing: {
       currency: 'JOD',
       childEarlyBird: 15,
-      childRegular: 15,
+      childRegular: 20,
       adult: 0,
-      earlyBirdUntil: '2026-11-07T11:00:00+03:00',
+      earlyBirdUntil: '2026-10-25T23:59:59+03:00',
     },
     discounts: [
       // Example — set active: true (or add your own codes):
@@ -337,7 +337,7 @@ export const site: SiteContent = {
     instagram: 'https://www.instagram.com/_wonderwand_/',
     tiktok: 'https://www.tiktok.com/@wonder_wand1',
     facebook: '',
-    whatsapp: '962788564199',
+    whatsapp: '962797784352',
     email: 'info@wonderwand.org',
   },
 

@@ -20,8 +20,19 @@ const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
 const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
 const cur = reg.pricing.currency;
 const price = childPrice(reg.pricing);
-const earlyBird =
-  reg.pricing.childEarlyBird !== reg.pricing.childRegular && isEarlyBird(reg.pricing);
+const hasEarlyBird = reg.pricing.childEarlyBird !== reg.pricing.childRegular;
+const earlyBird = hasEarlyBird && isEarlyBird(reg.pricing);
+// The page is prerendered, so the early-bird switch is also applied client-side
+// (see the script at the bottom) from this ISO timestamp.
+const earlyBirdUntilIso = reg.pricing.earlyBirdUntil;
+const earlyBirdUntilText = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en-GB', {
+  day: 'numeric',
+  month: 'long',
+  timeZone: 'Asia/Amman',
+}).format(new Date(earlyBirdUntilIso));
+const earlyBirdActiveText = t('tickets.earlyBirdActive')
+  .replace('{date}', earlyBirdUntilText)
+  .replace('{regular}', `${reg.pricing.childRegular} ${reg.pricing.currency}`);
 const maxChildren = childTt.perOrderLimit;
 // The discount box only appears when at least one code is active in the CMS.
 const showDiscount = reg.discounts.some((d) => d.active);
@@ -31,7 +42,34 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
 <section id="book" class="scroll-mt-24 bg-grape-50 py-16">
   <div class="mx-auto max-w-xl px-4">
     <h2 class="text-2xl font-extrabold text-ink sm:text-3xl">{t('form.title')}</h2>
-    <p class="mt-2 text-ink/70">{tx(reg.paymentInstructions, lang)}</p>
+    {
+      !closed && (
+        <div class="mt-4 rounded-2xl border border-grape-200 bg-white px-4 py-3 text-sm text-ink shadow-sm">
+          <span class="text-lg" aria-hidden="true">🎟️</span>{' '}
+          {hasEarlyBird ? (
+            <>
+              <span data-eb="on" class:list={[{ hidden: !earlyBird }]}>
+                <strong class="text-grape-700">{reg.pricing.childEarlyBird} {cur}</strong>{' '}
+                {lang === 'ar' ? 'للطفل' : 'per child'} · {earlyBirdActiveText}
+              </span>
+              <span data-eb="off" class:list={[{ hidden: earlyBird }]}>
+                <strong class="text-grape-700">{reg.pricing.childRegular} {cur}</strong>{' '}
+                {lang === 'ar' ? 'للطفل' : 'per child'} · {t('tickets.earlyBirdEnded')}
+              </span>
+            </>
+          ) : (
+            <span>
+              <strong class="text-grape-700">{reg.pricing.childRegular} {cur}</strong>{' '}
+              {lang === 'ar' ? 'للطفل' : 'per child'}
+            </span>
+          )}
+          {reg.pricing.adult === 0 && (
+            <span class="text-ink/70"> · {lang === 'ar' ? 'المرافق مجانًا' : 'accompanying adult free'}</span>
+          )}
+        </div>
+      )
+    }
+    <p class="mt-3 text-ink/70">{tx(reg.paymentInstructions, lang)}</p>
 
     {
       closed ? (
@@ -45,6 +83,9 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
           action="/api/book"
           data-submitting-label={t('form.submitting')}
           data-child-price={price}
+          data-child-early-price={reg.pricing.childEarlyBird}
+          data-child-regular-price={reg.pricing.childRegular}
+          data-early-bird-until={hasEarlyBird ? earlyBirdUntilIso : ''}
           data-currency={cur}
           data-child-label={t('form.child')}
           data-code-ok={t('form.discountApplied')}
@@ -136,16 +177,20 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
               <div>
                 <p class="font-semibold text-ink">{tx(childTt.name, lang)}</p>
                 <p class="text-xs text-ink/60">
-                  {earlyBird ? (
-                    <>
-                      <span class="font-bold text-grape-700">{price} {cur}</span>
-                      <span class="text-grape-500">
-                        {' '}· {t('tickets.earlyBird')} — {t('tickets.earlyBirdActive')}
-                      </span>
-                    </>
-                  ) : (
-                    <span class="font-bold text-ink">{price} {cur}</span>
-                  )}
+                  <span data-eb="on" class:list={[{ hidden: !earlyBird }]}>
+                    <span class="font-bold text-grape-700">
+                      {reg.pricing.childEarlyBird} {cur}
+                    </span>
+                    <span class="text-grape-500">
+                      {' '}· {t('tickets.earlyBird')} — {earlyBirdActiveText}
+                    </span>
+                  </span>
+                  <span data-eb="off" class:list={[{ hidden: earlyBird }]}>
+                    <span class="font-bold text-ink">{reg.pricing.childRegular} {cur}</span>
+                    {hasEarlyBird && (
+                      <span class="text-ink/50"> · {t('tickets.earlyBirdEnded')}</span>
+                    )}
+                  </span>
                 </p>
               </div>
               <input
@@ -342,7 +387,22 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
     const childrenWrap = $('children');
     const rows = [...form.querySelectorAll<HTMLElement>('.child-row')];
 
-    const childPrice = Number(form.dataset.childPrice || 0);
+    // The page is prerendered, so re-evaluate the early-bird window on the
+    // visitor's clock and swap price + label if the build is stale.
+    let childPrice = Number(form.dataset.childPrice || 0);
+    const ebUntil = form.dataset.earlyBirdUntil;
+    if (ebUntil) {
+      const active = Date.now() <= new Date(ebUntil).getTime();
+      childPrice = Number(
+        active ? form.dataset.childEarlyPrice : form.dataset.childRegularPrice,
+      );
+      document
+        .querySelectorAll('#book [data-eb="on"]')
+        .forEach((el) => el.classList.toggle('hidden', !active));
+      document
+        .querySelectorAll('#book [data-eb="off"]')
+        .forEach((el) => el.classList.toggle('hidden', active));
+    }
     const currency = form.dataset.currency || '';
     const lang = (form.querySelector('[name="lang"]') as HTMLInputElement).value;
 
