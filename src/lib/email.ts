@@ -28,6 +28,16 @@ export interface BookingRecord {
 
 const FROM_FALLBACK = 'Wonder Wand <info@wonderwand.org>';
 
+/** Team inbox: env override, else the public contact email from the CMS. */
+export function teamInbox(env: EmailEnv, content?: SiteContent): string {
+  return (
+    env.BOOKING_NOTIFY_EMAIL ||
+    env.BOOKING_FROM_EMAIL ||
+    content?.social.email ||
+    'info@wonderwand.org'
+  );
+}
+
 /** Low-level send. No-ops (logs) when RESEND_API_KEY is absent. */
 export async function sendEmail(
   env: EmailEnv,
@@ -42,7 +52,7 @@ export async function sendEmail(
     : FROM_FALLBACK;
   // Replies from parents land in the team inbox (a Gmail address is fine here;
   // only the From address has to be on the verified sending domain).
-  const replyTo = msg.replyTo ?? env.BOOKING_NOTIFY_EMAIL;
+  const replyTo = msg.replyTo ?? teamInbox(env);
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

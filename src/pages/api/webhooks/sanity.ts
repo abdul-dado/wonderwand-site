@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { loadContent } from '@/lib/content';
 import {
+  teamInbox,
   sendEmail,
   paymentConfirmedEmail,
   paidListEmail,
@@ -74,8 +75,8 @@ export const POST: APIRoute = async (context) => {
   await sendEmail(env, { to: booking.email, ...paymentConfirmedEmail(booking, content) });
 
   // Owner copy: this ticket + the running list of everyone who has paid.
-  const owner = env.BOOKING_NOTIFY_EMAIL || env.BOOKING_FROM_EMAIL;
-  if (owner) {
+  const owner = teamInbox(env, content);
+  {
     const paid =
       (await sanityFetch<PaidRow[]>(
         env,

@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import type { Lang } from '@/i18n';
 import { childPrice, isEarlyBird, findDiscount, discountAmount } from '@/data/site';
 import { loadContent } from '@/lib/content';
-import { sendEmail, bookingReceivedEmail, teamNotifyEmail } from '@/lib/email';
+import { sendEmail, teamInbox, bookingReceivedEmail, teamNotifyEmail } from '@/lib/email';
 import { createBookingDoc } from '@/lib/sanity';
 
 export const prerender = false;
@@ -175,8 +175,7 @@ export const POST: APIRoute = async (context) => {
       return sendEmail(env, { to: booking.email, ...mail });
     })(),
     (async () => {
-      const to = env.BOOKING_NOTIFY_EMAIL || env.BOOKING_FROM_EMAIL;
-      if (!to) return;
+      const to = teamInbox(env, content);
       return sendEmail(env, { to, replyTo: booking.email, ...teamNotifyEmail(booking, content) });
     })(),
   ]);
