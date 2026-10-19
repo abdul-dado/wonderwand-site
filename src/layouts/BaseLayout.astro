@@ -140,5 +140,31 @@ const { ga4Id, metaPixelId } = content.analytics;
         localStorage.setItem('ww-lang', lang);
       } catch (e) {}
     </script>
+    <script is:inline>
+      // On Android phones with both WhatsApp and WhatsApp Business installed,
+      // wa.me links can open in Business. Route them to regular WhatsApp
+      // (package com.whatsapp), falling back to wa.me if it isn't installed.
+      // Skipped in in-app browsers (Instagram/Facebook/TikTok), which don't
+      // handle intent:// links reliably, and on iOS, where the OS decides.
+      (function () {
+        var ua = navigator.userAgent || '';
+        if (!/Android/i.test(ua)) return;
+        if (/Instagram|FBAN|FBAV|FB_IAB|musical_ly|BytedanceWebview|TikTok|; wv)/i.test(ua)) return;
+        document.addEventListener('click', function (e) {
+          var a = e.target && e.target.closest && e.target.closest('a[href^="https://wa.me/"]');
+          if (!a) return;
+          var u = new URL(a.href);
+          var phone = u.pathname.replace(/[^d]/g, '');
+          if (!phone) return;
+          var text = u.searchParams.get('text');
+          var q = 'phone=' + phone + (text ? '&text=' + encodeURIComponent(text) : '');
+          e.preventDefault();
+          location.href =
+            'intent://send?' + q +
+            '#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=' +
+            encodeURIComponent(a.href) + ';end';
+        });
+      })();
+    </script>
   </body>
 </html>
