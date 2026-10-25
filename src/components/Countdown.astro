@@ -25,7 +25,8 @@ const units = [
   <p class="mb-3 text-sm font-semibold uppercase tracking-wide text-cream/70">
     {t('countdown.title')}
   </p>
-  <div class="grid grid-cols-4 gap-2 sm:gap-3">
+  <!-- Clock order (days on the left) even on the RTL Arabic page. -->
+  <div class="grid grid-cols-4 gap-2 sm:gap-3" dir="ltr">
     {
       units.map((u) => (
         <div class="rounded-2xl bg-white/10 px-2 py-3 backdrop-blur">

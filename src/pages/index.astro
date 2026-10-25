@@ -1,7 +1,7 @@
 ---
-// Root entry: detect the visitor's language and forward to /ar/ or /en/.
-// Prerendered to a tiny static file; the redirect runs client-side with a
-// no-JS <meta> fallback to Arabic.
+// Root entry: Arabic is the default for everyone (English is one tap away via
+// the header toggle). Prerendered to a tiny static file with a <meta> refresh
+// for no-JS visitors.
 const fallback = '/ar/';
 ---
 
@@ -14,16 +14,7 @@ const fallback = '/ar/';
     <link rel="canonical" href="https://wonderwand.org/ar/" />
     <title>Wonder Wand</title>
     <script is:inline>
-      (function () {
-        try {
-          var stored = localStorage.getItem('ww-lang');
-          var nav = (navigator.language || 'ar').toLowerCase();
-          var lang = stored || (nav.indexOf('en') === 0 ? 'en' : 'ar');
-          location.replace('/' + lang + '/');
-        } catch (e) {
-          location.replace('/ar/');
-        }
-      })();
+      location.replace('/ar/' + location.search + location.hash);
     </script>
   </head>
   <body>

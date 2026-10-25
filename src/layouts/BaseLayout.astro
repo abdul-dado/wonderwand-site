@@ -135,11 +135,6 @@ const { ga4Id, metaPixelId } = content.analytics;
   </head>
   <body>
     <slot />
-    <script is:inline define:vars={{ lang }}>
-      try {
-        localStorage.setItem('ww-lang', lang);
-      } catch (e) {}
-    </script>
     <script is:inline>
       // On Android phones with both WhatsApp and WhatsApp Business installed,
       // wa.me links can open in Business. Route them to regular WhatsApp
