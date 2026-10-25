@@ -9,6 +9,9 @@ interface Props {
 const { lang, content = site } = Astro.props;
 const goal = milestoneGoal(content.hero.milestone);
 const locale = lang === 'ar' ? 'ar-JO' : 'en-US';
+// "200 ألف" reads better than "200K" in Arabic; English keeps the CMS label.
+const goalLabel =
+  lang === 'ar' && goal % 1000 === 0 ? `${goal / 1000} ألف` : content.hero.milestone;
 const labels =
   lang === 'ar'
     ? { subs: 'مشترك على يوتيوب', left: 'باقي {n} للـ {goal}', done: '🎉 وصلنا {goal}!' }
@@ -21,7 +24,7 @@ const labels =
       id="sub-counter"
       class="mx-auto mt-6 hidden w-full max-w-md rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 lg:mx-0"
       data-goal={goal}
-      data-goal-label={content.hero.milestone}
+      data-goal-label={goalLabel}
       data-locale={locale}
       data-left={labels.left}
       data-done={labels.done}
