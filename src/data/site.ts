@@ -2,7 +2,7 @@ import type { Lang } from '@/i18n';
 
 /* -------------------------------------------------------------------------
    Wonder Wand — site content
-   Single source of truth for all editable copy for the 100K launch page.
+   Single source of truth for all editable copy for the 200K celebration page.
    In phase 2 this module is replaced by a Sanity fetch with the SAME shape,
    so components never need to change.
 ------------------------------------------------------------------------- */
@@ -70,7 +70,7 @@ export interface SiteContent {
     kicker: L;
     title: L;
     subtitle: L;
-    milestone: string; // e.g. "100K"
+    milestone: string; // e.g. "200K" — also the goal of the live subscriber counter
   };
   about: {
     title: L;
@@ -138,8 +138,8 @@ export const site: SiteContent = {
   announcement: {
     enabled: true,
     text: {
-      ar: '🎉 Wonder Wand وصلت 100 ألف مشترك! احجز مكانك في الاحتفال',
-      en: '🎉 Wonder Wand hit 100K subscribers! Book your seat at the celebration',
+      ar: '🎉 قرّبنا من 200 ألف مشترك! احجز مكانك في الاحتفال',
+      en: "🎉 We're almost at 200K subscribers! Book your seat at the celebration",
     },
     href: '#book',
   },
@@ -150,14 +150,14 @@ export const site: SiteContent = {
       en: 'A special celebration',
     },
     title: {
-      ar: 'نحتفل بوصول Wonder Wand إلى 100 ألف مشترك',
-      en: 'Celebrating Wonder Wand reaching 100,000 subscribers',
+      ar: 'احتفال Wonder Wand بـ 200 ألف مشترك',
+      en: "Wonder Wand's 200K Subscribers Celebration",
     },
     subtitle: {
       ar: 'يوم مليء بالألعاب والمسابقات والجوائز، ولقاء مباشر مع Wonder Wand — للأطفال وأهاليهم.',
       en: 'A day full of games, contests and prizes, plus a live meet-up with Wonder Wand — for children and their families.',
     },
-    milestone: '100K',
+    milestone: '200K',
   },
 
   about: {
@@ -180,8 +180,8 @@ export const site: SiteContent = {
       ar: 'تفاصيل الحدث',
       en: 'Event details',
     },
-    startsAt: '2026-11-07T11:00:00+03:00',
-    endsAt: '2026-11-07T13:30:00+03:00',
+    startsAt: '2026-11-21T11:00:00+03:00',
+    endsAt: '2026-11-21T13:30:00+03:00',
     timeConfirmed: true,
     doorsOpen: { ar: 'يُعلن قريبًا', en: 'Announced soon' },
     venueName: { ar: 'روضة أكاديمية دفا', en: 'Dafa Academy' },
@@ -275,7 +275,7 @@ export const site: SiteContent = {
       childEarlyBird: 15,
       childRegular: 20,
       adult: 0,
-      earlyBirdUntil: '2026-10-25T23:59:59+03:00',
+      earlyBirdUntil: '2026-11-10T23:59:59+03:00',
     },
     discounts: [
       // Example — set active: true (or add your own codes):
@@ -326,8 +326,8 @@ export const site: SiteContent = {
     {
       q: { ar: 'متى يبدأ الحدث؟', en: 'When does the event start?' },
       a: {
-        ar: 'السبت 7 نوفمبر 2026 من 11:00 صباحًا حتى 1:30 ظهرًا في روضة أكاديمية دفا، عمّان. التفاصيل تصل لكل من حجز.',
-        en: 'Saturday 7 November 2026, 11:00 AM to 1:30 PM at Dafa Academy, Amman. Details are sent to everyone who booked.',
+        ar: 'السبت 21 نوفمبر 2026 من 11:00 صباحًا حتى 1:30 ظهرًا في روضة أكاديمية دفا، عمّان. التفاصيل تصل لكل من حجز.',
+        en: 'Saturday 21 November 2026, 11:00 AM to 1:30 PM at Dafa Academy, Amman. Details are sent to everyone who booked.',
       },
     },
   ],
@@ -348,16 +348,24 @@ export const site: SiteContent = {
 
   seo: {
     title: {
-      ar: 'Wonder Wand — احتفال 100 ألف مشترك',
-      en: 'Wonder Wand — 100K Subscribers Celebration',
+      ar: 'Wonder Wand — احتفال 200 ألف مشترك',
+      en: 'Wonder Wand — 200K Subscribers Celebration',
     },
     description: {
-      ar: 'احجز مكانك في احتفال Wonder Wand بوصول القناة إلى 100 ألف مشترك: ألعاب، مسابقات، جوائز ولقاء مباشر مع Wonder Wand في عمّان يوم 7 نوفمبر 2026.',
-      en: 'Book your seat at the Wonder Wand 100K subscribers celebration: games, contests, prizes and a live meet-up with Wonder Wand in Amman on 7 November 2026.',
+      ar: 'احجز مكانك في احتفال Wonder Wand بـ 200 ألف مشترك: ألعاب، مسابقات، جوائز ولقاء مباشر مع Wonder Wand في عمّان يوم 21 نوفمبر 2026.',
+      en: 'Book your seat at the Wonder Wand 200K subscribers celebration: games, contests, prizes and a live meet-up with Wonder Wand in Amman on 21 November 2026.',
     },
     ogImage: '/og-default.png',
   },
 };
+
+/** "200K" → 200000, "1.5M" → 1500000, "250000" → 250000. 0 when unparseable. */
+export function milestoneGoal(milestone: string): number {
+  const m = milestone.trim().replace(/,/g, '').match(/^(\d+(?:\.\d+)?)\s*([kKmM]?)$/);
+  if (!m) return 0;
+  const mult = m[2].toLowerCase() === 'm' ? 1e6 : m[2].toLowerCase() === 'k' ? 1e3 : 1;
+  return Math.round(Number(m[1]) * mult);
+}
 
 /**
  * wa.me link for a WhatsApp number (digits, with country code) or an existing

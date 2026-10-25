@@ -1,8 +1,8 @@
 # CLAUDE.md
 
 Wonder Wand — bilingual (Arabic RTL default, English) site for the kids' YouTube
-channel, live at https://wonderwand.org. Phase 1 is the 100K-subscribers
-celebration event booking flow. The owner often edits from a phone and prefers
+channel, live at https://wonderwand.org. Phase 1 is the 200K-subscribers
+celebration event booking flow (renamed from 100K). The owner often edits from a phone and prefers
 short, simple Arabic replies.
 
 ## Deploy
@@ -11,7 +11,8 @@ Every push to `main` auto-deploys via Cloudflare Pages (project `wonderwand`).
 There is no staging. Run `pnpm check` (astro + tsc, must be 0 errors) before
 pushing. No test runner. Production secrets live in Cloudflare Pages, not in the
 repo: RESEND_API_KEY, SANITY_WRITE_TOKEN, TURNSTILE_SECRET_KEY,
-SANITY_WEBHOOK_SECRET, CHECKIN_PIN. A local `.env` is optional and gitignored.
+SANITY_WEBHOOK_SECRET, CHECKIN_PIN, YOUTUBE_API_KEY (live subscriber counter;
+`/api/subscribers`, hidden when unset). A local `.env` is optional and gitignored.
 
 ## Stack
 
@@ -32,6 +33,8 @@ Tailwind CSS 4, Sanity CMS (project `b9izpb2i`, dataset `production`, Studio at
   Studio, emails the ticket to the parent and the paid list to the team inbox.
 - `src/lib/email.ts` — Resend templates; `teamInbox()` defaults to info@wonderwand.org.
 - `sanity/schemaTypes/` — CMS schema.
+- `src/components/SubscriberCounter.astro` + `src/pages/api/subscribers.ts` —
+  live YouTube count with progress to the hero `milestone` goal (e.g. "200K").
 
 ## Gotchas
 
@@ -49,7 +52,7 @@ Tailwind CSS 4, Sanity CMS (project `b9izpb2i`, dataset `production`, Studio at
 
 ## Event facts (current)
 
-Sat 7 Nov 2026, 11:00–13:30, Dafa Academy (روضة أكاديمية دفا), Kharja St, Amman.
-25 children, ages 3–8. Child 15 JOD early bird until 25 Oct 23:59 Amman, then
+Sat 21 Nov 2026 (postponed from 7 Nov), 11:00–13:30, Dafa Academy (روضة أكاديمية دفا), Kharja St, Amman.
+25 children, ages 3–8. Child 15 JOD early bird until 10 Nov 23:59 Amman, then
 20 JOD; adult free. Payment by CliQ to alias "Wonderwand", receipt via WhatsApp
 962797784352. Hosts: Rahaf & Hayla (رهف وهيلا).

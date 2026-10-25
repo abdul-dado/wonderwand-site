@@ -1,0 +1,86 @@
+---
+import type { Lang } from '@/i18n';
+import { site, milestoneGoal, type SiteContent } from '@/data/site';
+
+interface Props {
+  lang: Lang;
+  content?: SiteContent;
+}
+const { lang, content = site } = Astro.props;
+const goal = milestoneGoal(content.hero.milestone);
+const locale = lang === 'ar' ? 'ar-JO' : 'en-US';
+const labels =
+  lang === 'ar'
+    ? { subs: 'مشترك على يوتيوب', left: 'باقي {n} للـ {goal}', done: '🎉 وصلنا {goal}!' }
+    : { subs: 'YouTube subscribers', left: '{n} to go to {goal}', done: '🎉 We hit {goal}!' };
+---
+
+{
+  goal > 0 && (
+    <div
+      id="sub-counter"
+      class="mx-auto mt-6 hidden w-full max-w-md rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 lg:mx-0"
+      data-goal={goal}
+      data-goal-label={content.hero.milestone}
+      data-locale={locale}
+      data-left={labels.left}
+      data-done={labels.done}
+    >
+      <div class="flex items-baseline justify-between gap-3">
+        <p>
+          <span class="font-display text-2xl font-extrabold tabular-nums text-star" data-count>
+            —
+          </span>
+          <span class="ms-1 text-sm text-cream/80">{labels.subs}</span>
+        </p>
+        <span class="text-xs font-semibold text-cream/70" data-left-text />
+      </div>
+      <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+        <div
+          class="h-full rounded-full bg-gradient-to-r from-star to-pink-400 transition-[width] duration-1000"
+          style="width:0%"
+          data-bar
+        />
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const box = document.getElementById('sub-counter');
+  if (box) {
+    const goal = Number(box.dataset.goal);
+    const fmt = new Intl.NumberFormat(box.dataset.locale);
+    const countEl = box.querySelector<HTMLElement>('[data-count]')!;
+    const leftEl = box.querySelector<HTMLElement>('[data-left-text]')!;
+    const bar = box.querySelector<HTMLElement>('[data-bar]')!;
+
+    const render = (count: number) => {
+      box.classList.remove('hidden');
+      const label = box.dataset.goalLabel || fmt.format(goal);
+      leftEl.textContent =
+        count >= goal
+          ? box.dataset.done!.replace('{goal}', label)
+          : box.dataset.left!.replace('{n}', fmt.format(goal - count)).replace('{goal}', label);
+      requestAnimationFrame(() => {
+        bar.style.width = `${Math.min(100, (count / goal) * 100)}%`;
+      });
+      // Count up from 90% so the number feels alive without a long animation.
+      const from = Math.floor(count * 0.9);
+      const start = performance.now();
+      const step = (t: number) => {
+        const p = Math.min(1, (t - start) / 1200);
+        countEl.textContent = fmt.format(Math.round(from + (count - from) * (1 - (1 - p) ** 3)));
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    fetch('/api/subscribers')
+      .then((r) => r.json())
+      .then((d: { count: number | null }) => {
+        if (typeof d.count === 'number' && d.count > 0) render(d.count);
+      })
+      .catch(() => {});
+  }
+</script>

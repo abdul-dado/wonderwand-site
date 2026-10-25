@@ -53,7 +53,7 @@ export const heroContent = defineType({
     { name: 'kicker', title: 'Kicker (small label)', type: 'localeString' },
     { name: 'title', title: 'Title', type: 'localeString' },
     { name: 'subtitle', title: 'Subtitle', type: 'localeText' },
-    { name: 'milestone', title: 'Milestone badge (e.g. 100K)', type: 'string' },
+    { name: 'milestone', title: 'Milestone / subscriber goal (e.g. 200K)', type: 'string' },
   ],
   preview: { prepare: () => ({ title: 'Hero section' }) },
 });
