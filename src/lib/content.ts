@@ -115,6 +115,11 @@ export async function loadContent(
         childRegular: str(p.childRegular, d.registration.pricing.childRegular),
         adult: typeof p.adult === 'number' ? p.adult : d.registration.pricing.adult,
         earlyBirdUntil: str(p.earlyBirdUntil, d.registration.pricing.earlyBirdUntil),
+        childCompareAt:
+          typeof p.childCompareAt === 'number'
+            ? p.childCompareAt
+            : d.registration.pricing.childCompareAt,
+        promoLabel: loc(p.promoLabel, d.registration.pricing.promoLabel ?? { ar: '', en: '' }),
       },
       discounts: Array.isArray(data.discounts)
         ? data.discounts.map((x: any) => ({

@@ -28,6 +28,10 @@ export interface Pricing {
   adult: number;
   /** ISO 8601 with timezone — early-bird pricing applies up to this instant. */
   earlyBirdUntil: string;
+  /** Old child price, shown crossed out next to the current one. 0 = no offer. */
+  childCompareAt?: number;
+  /** Name of the running offer, e.g. "Wonder Wand Friday". */
+  promoLabel?: L;
 }
 
 export interface DiscountCode {
@@ -138,8 +142,8 @@ export const site: SiteContent = {
   announcement: {
     enabled: true,
     text: {
-      ar: '🎉 قرّبنا من 200 ألف مشترك! احجز مكانك في الاحتفال',
-      en: "🎉 We're almost at 200K subscribers! Book your seat at the celebration",
+      ar: '🎉 Wonder Wand Friday: التذكرة بـ 5 دنانير بدل 15! احجز مكانك',
+      en: '🎉 Wonder Wand Friday: tickets are 5 JOD instead of 15! Book your seat',
     },
     href: '#book',
   },
@@ -199,36 +203,76 @@ export const site: SiteContent = {
 
   activities: [
     {
-      emoji: '🎈',
-      title: { ar: 'ألعاب للأطفال', en: 'Kids games' },
-      description: {
-        ar: 'محطات ألعاب تفاعلية آمنة ومناسبة لكل الأعمار.',
-        en: 'Safe, interactive game stations suitable for every age.',
+      emoji: '🎨',
+      title: {
+        ar: 'ركن الرسم على الوجوه',
+        en: 'Face painting corner',
       },
+      description: { ar: '', en: '' },
+    },
+    {
+      emoji: '🍿',
+      title: {
+        ar: 'ركن الفشار',
+        en: 'Popcorn corner',
+      },
+      description: { ar: '', en: '' },
+    },
+    {
+      emoji: '🍭',
+      title: {
+        ar: 'ركن غزل البنات',
+        en: 'Cotton candy corner',
+      },
+      description: { ar: '', en: '' },
+    },
+    {
+      emoji: '🥤',
+      title: {
+        ar: 'ركن العصائر الطبيعية',
+        en: 'Natural juice corner',
+      },
+      description: { ar: '', en: '' },
     },
     {
       emoji: '🏆',
-      title: { ar: 'مسابقات وجوائز', en: 'Contests & prizes' },
-      description: {
-        ar: 'مسابقات تعليمية ترفيهية مع جوائز قيّمة للفائزين.',
-        en: 'Fun educational contests with great prizes for the winners.',
+      title: {
+        ar: 'مسابقات وتحديات ممتعة مع جوائز وهدايا',
+        en: 'Fun contests and challenges with prizes and gifts',
       },
+      description: { ar: '', en: '' },
     },
     {
-      emoji: '✨',
-      title: { ar: 'لقاء مع Wonder Wand', en: 'Meet Wonder Wand' },
-      description: {
-        ar: 'تجربة ولقاء مباشر مع شخصيات القناة وصور تذكارية.',
-        en: 'A live meet-and-greet with the channel characters and photos.',
+      emoji: '🧠',
+      title: {
+        ar: 'مسابقات تعليمية وأنشطة لتنمية التفكير والإدراك الحسي',
+        en: 'Educational contests and activities that build thinking and sensory awareness',
       },
+      description: { ar: '', en: '' },
     },
     {
-      emoji: '🎁',
-      title: { ar: 'مفاجأة خاصة', en: 'A special surprise' },
-      description: {
-        ar: 'ومفاجأة خاصة نكشف عنها لأول مرة خلال الحدث.',
-        en: 'And a special surprise revealed for the first time during the event.',
+      emoji: '🎨',
+      title: {
+        ar: 'فعاليات فنية وإبداعية للأطفال',
+        en: 'Art and creative activities for children',
       },
+      description: { ar: '', en: '' },
+    },
+    {
+      emoji: '🎭',
+      title: {
+        ar: 'فقرات ترفيهية وتفاعلية مليئة بالمفاجآت',
+        en: 'Entertaining, interactive shows full of surprises',
+      },
+      description: { ar: '', en: '' },
+    },
+    {
+      emoji: '📸',
+      title: {
+        ar: 'أجواء احتفالية وفرص جميلة للتصوير وصناعة الذكريات',
+        en: 'A festive atmosphere and lovely moments for photos and memories',
+      },
+      description: { ar: '', en: '' },
     },
   ],
 
@@ -253,8 +297,8 @@ export const site: SiteContent = {
         id: 'child',
         name: { ar: 'تذكرة طفل', en: 'Child ticket' },
         note: {
-          ar: 'يشمل دخول الطفل وكل الفعاليات',
-          en: 'Includes the child’s entry and all activities',
+          ar: 'يشمل دخول الطفل إلى الحفلة',
+          en: 'Includes the child’s entry to the party',
         },
         soldOut: false,
         perOrderLimit: 6,
@@ -272,10 +316,12 @@ export const site: SiteContent = {
     ],
     pricing: {
       currency: 'JOD',
-      childEarlyBird: 15,
-      childRegular: 20,
+      childEarlyBird: 5,
+      childRegular: 5,
       adult: 0,
       earlyBirdUntil: '2026-11-10T23:59:59+03:00',
+      childCompareAt: 15,
+      promoLabel: { ar: 'Wonder Wand Friday', en: 'Wonder Wand Friday' },
     },
     discounts: [
       // Example — set active: true (or add your own codes):
@@ -400,6 +446,16 @@ export function childPrice(
   now: Date = new Date(),
 ): number {
   return isEarlyBird(pricing, now) ? pricing.childEarlyBird : pricing.childRegular;
+}
+
+/** The running offer: an old price above the current one. Null when there is none. */
+export function activePromo(
+  pricing: Pricing = site.registration.pricing,
+  now: Date = new Date(),
+): { was: number; price: number; label?: L } | null {
+  const price = childPrice(pricing, now);
+  const was = pricing.childCompareAt ?? 0;
+  return was > price ? { was, price, label: pricing.promoLabel } : null;
 }
 
 /** Look up an active, non-expired discount code (case-insensitive). */

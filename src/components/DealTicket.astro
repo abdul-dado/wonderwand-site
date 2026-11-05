@@ -1,0 +1,43 @@
+---
+import { useTranslations, type Lang } from '@/i18n';
+import { site, tx, activePromo, type SiteContent } from '@/data/site';
+import { formatMoney } from '@/lib/money';
+
+interface Props {
+  lang: Lang;
+  content?: SiteContent;
+  /** Links to the booking form; turn off when already inside it. */
+  link?: boolean;
+  class?: string;
+}
+const { lang, content = site, link = true, class: className } = Astro.props;
+const t = useTranslations(lang);
+const { status, pricing } = content.registration;
+const promo = status === 'open' ? activePromo(pricing) : null;
+const label = promo?.label ? tx(promo.label, lang) : '';
+// The X sits on the number alone, so the old price stays readable.
+const [wasNumber, ...wasUnit] = promo
+  ? formatMoney(promo.was, pricing.currency, lang).split(' ')
+  : [];
+const Tag = link ? 'a' : 'div';
+---
+
+{
+  promo && (
+    <Tag href={link ? '#book' : undefined} class:list={['ww-deal', className]}>
+      <span class="ww-deal__body">
+        {label && <span class="ww-deal__stub">{label}</span>}
+        <span class="ww-deal__price">
+          <span class="sr-only">{t('deal.was')}</span>
+          <del class="ww-deal__was">
+            <span class="ww-deal__x">{wasNumber}</span>{' '}
+            {wasUnit.join(' ')}
+          </del>
+          <span class="sr-only">{t('deal.now')}</span>
+          <strong class="ww-deal__now">{formatMoney(promo.price, pricing.currency, lang)}</strong>
+          <span class="ww-deal__unit">{t('deal.perChild')}</span>
+        </span>
+      </span>
+    </Tag>
+  )
+}

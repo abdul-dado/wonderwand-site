@@ -33,6 +33,13 @@ export const pricing = defineType({
     { name: 'childRegular', title: 'Child — regular price', type: 'number' },
     { name: 'adult', title: 'Accompanying adult price', type: 'number', initialValue: 0 },
     { name: 'earlyBirdUntil', title: 'Early bird ends at', type: 'datetime' },
+    {
+      name: 'childCompareAt',
+      title: 'Child — old price (crossed out)',
+      description: 'Shown with an X next to the current price. Set to 0 to hide the offer.',
+      type: 'number',
+    },
+    { name: 'promoLabel', title: 'Offer name', type: 'localeString' },
   ],
   preview: { prepare: () => ({ title: 'Pricing' }) },
 });

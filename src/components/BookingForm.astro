@@ -1,6 +1,8 @@
 ---
 import { useTranslations, type Lang } from '@/i18n';
-import { site, tx, childPrice, isEarlyBird, type SiteContent } from '@/data/site';
+import { site, tx, childPrice, isEarlyBird, activePromo, type SiteContent } from '@/data/site';
+import { formatMoney } from '@/lib/money';
+import DealTicket from './DealTicket.astro';
 
 interface Props {
   lang: Lang;
@@ -19,9 +21,9 @@ const closedMsg =
 const childTt = reg.ticketTypes.find((tt) => tt.id === 'child')!;
 const adultTt = reg.ticketTypes.find((tt) => tt.id === 'adult')!;
 const cur = reg.pricing.currency;
-// Visitors read "دينار" more naturally than the ISO code.
-const curLabel = lang === 'ar' && cur === 'JOD' ? 'دينار' : cur;
+const money = (n: number) => formatMoney(n, cur, lang);
 const price = childPrice(reg.pricing);
+const promo = activePromo(reg.pricing);
 const hasEarlyBird = reg.pricing.childEarlyBird !== reg.pricing.childRegular;
 const earlyBird = hasEarlyBird && isEarlyBird(reg.pricing);
 // The page is prerendered, so the early-bird switch is also applied client-side
@@ -34,7 +36,7 @@ const earlyBirdUntilText = new Intl.DateTimeFormat(lang === 'ar' ? 'ar-JO' : 'en
 }).format(new Date(earlyBirdUntilIso));
 const earlyBirdActiveText = t('tickets.earlyBirdActive')
   .replace('{date}', earlyBirdUntilText)
-  .replace('{regular}', `${reg.pricing.childRegular} ${curLabel}`);
+  .replace('{regular}', money(reg.pricing.childRegular));
 const maxChildren = childTt.perOrderLimit;
 // The discount box only appears when at least one code is active in the CMS.
 const showDiscount = reg.discounts.some((d) => d.active);
@@ -45,23 +47,35 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
   <div class="mx-auto max-w-xl px-4">
     <h2 class="text-2xl font-extrabold text-ink sm:text-3xl">{t('form.title')}</h2>
     {
-      !closed && (
+      !closed && promo && (
+        <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <DealTicket lang={lang} content={content} link={false} />
+          {reg.pricing.adult === 0 && (
+            <span class="text-sm font-semibold text-ink/70">
+              {lang === 'ar' ? 'المرافق مجانًا' : 'Accompanying adult free'}
+            </span>
+          )}
+        </div>
+      )
+    }
+    {
+      !closed && !promo && (
         <div class="mt-4 rounded-2xl border border-grape-200 bg-white px-4 py-3 text-sm text-ink shadow-sm">
           <span class="text-lg" aria-hidden="true">🎟️</span>{' '}
           {hasEarlyBird ? (
             <>
               <span data-eb="on" class:list={[{ hidden: !earlyBird }]}>
-                <strong class="text-grape-700">{reg.pricing.childEarlyBird} {curLabel}</strong>{' '}
+                <strong class="text-grape-700">{money(reg.pricing.childEarlyBird)}</strong>{' '}
                 {lang === 'ar' ? 'للطفل' : 'per child'} · {earlyBirdActiveText}
               </span>
               <span data-eb="off" class:list={[{ hidden: earlyBird }]}>
-                <strong class="text-grape-700">{reg.pricing.childRegular} {curLabel}</strong>{' '}
+                <strong class="text-grape-700">{money(reg.pricing.childRegular)}</strong>{' '}
                 {lang === 'ar' ? 'للطفل' : 'per child'} · {t('tickets.earlyBirdEnded')}
               </span>
             </>
           ) : (
             <span>
-              <strong class="text-grape-700">{reg.pricing.childRegular} {curLabel}</strong>{' '}
+              <strong class="text-grape-700">{money(reg.pricing.childRegular)}</strong>{' '}
               {lang === 'ar' ? 'للطفل' : 'per child'}
             </span>
           )}
@@ -88,7 +102,7 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
           data-child-early-price={reg.pricing.childEarlyBird}
           data-child-regular-price={reg.pricing.childRegular}
           data-early-bird-until={hasEarlyBird ? earlyBirdUntilIso : ''}
-          data-currency={curLabel}
+          data-currency={cur}
           data-child-label={t('form.child')}
           data-code-ok={t('form.discountApplied')}
           data-code-bad={t('form.discountInvalid')}
@@ -180,15 +194,17 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
                 <p class="font-semibold text-ink">{tx(childTt.name, lang)}</p>
                 <p class="text-xs text-ink/60">
                   <span data-eb="on" class:list={[{ hidden: !earlyBird }]}>
+                    {promo && <del class="me-1 text-ink/50">{money(promo.was)}</del>}
                     <span class="font-bold text-grape-700">
-                      {reg.pricing.childEarlyBird} {curLabel}
+                      {money(reg.pricing.childEarlyBird)}
                     </span>
                     <span class="text-grape-500">
                       {' '}· {t('tickets.earlyBird')} — {earlyBirdActiveText}
                     </span>
                   </span>
                   <span data-eb="off" class:list={[{ hidden: earlyBird }]}>
-                    <span class="font-bold text-ink">{reg.pricing.childRegular} {curLabel}</span>
+                    {promo && <del class="me-1 text-ink/50">{money(promo.was)}</del>}
+                    <span class="font-bold text-ink">{money(reg.pricing.childRegular)}</span>
                     {hasEarlyBird && (
                       <span class="text-ink/50"> · {t('tickets.earlyBirdEnded')}</span>
                     )}
@@ -366,6 +382,8 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
 }
 
 <script>
+  import { formatMoney } from '@/lib/money';
+
   const form = document.getElementById('booking-form') as HTMLFormElement | null;
   if (form) {
     const $ = (id: string) => document.getElementById(id)!;
@@ -411,7 +429,7 @@ const hearOptions = ['academy', 'social', 'friend', 'other'] as const;
     type Discount = { type: 'percent' | 'amount'; value: number; label: string };
     let discount: Discount | null = null;
 
-    const money = (n: number) => `${Math.round(n * 100) / 100} ${currency}`;
+    const money = (n: number) => formatMoney(n, currency, lang);
 
     const clamp = (input: HTMLInputElement) => {
       let n = Math.floor(Number(input.value) || 0);

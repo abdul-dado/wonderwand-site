@@ -26,6 +26,7 @@
   --color-sky-bright: #5bb8e8;
   --color-star: #ffd24b;
   --color-bubblegum: #ff8fb0;
+  --color-berry: #d61f69;
 
   --font-display: 'Baloo Bhaijaan 2', 'Baloo 2', system-ui, sans-serif;
   --font-body-ar: 'Tajawal', system-ui, sans-serif;
@@ -106,3 +107,104 @@
 
 /* Blends the wand art's white backdrop into light sections */
 .ww-blend { mix-blend-mode: multiply; }
+
+/* ------------------------------------------------------------------
+   Offer ticket — a notched price tag with the old price crossed out
+------------------------------------------------------------------- */
+.ww-deal {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  rotate: -1.5deg;
+  filter: drop-shadow(0 10px 14px rgb(47 29 107 / 0.3));
+  transition:
+    rotate 0.2s ease,
+    scale 0.2s ease;
+}
+a.ww-deal:hover {
+  rotate: 0deg;
+  scale: 1.03;
+}
+.ww-deal__body {
+  --notch: 0.6rem;
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+  border-radius: 1rem;
+  background: var(--color-star);
+  color: var(--color-grape-900);
+  -webkit-mask:
+    radial-gradient(circle var(--notch) at 0 50%, #0000 96%, #000) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% 50%, #0000 96%, #000) 100% 0 / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle var(--notch) at 0 50%, #0000 96%, #000) 0 0 / 51% 100% no-repeat,
+    radial-gradient(circle var(--notch) at 100% 50%, #0000 96%, #000) 100% 0 / 51% 100% no-repeat;
+}
+.ww-deal__stub {
+  display: flex;
+  align-items: center;
+  max-width: 6.75rem;
+  padding: 0.55rem 1.05rem;
+  border-inline-end: 2px dashed rgb(47 29 107 / 0.35);
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: center;
+}
+.ww-deal__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.6rem;
+  min-width: 0;
+  padding: 0.55rem 1.25rem;
+}
+.ww-deal__was {
+  color: rgb(47 29 107 / 0.8);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.ww-deal__x {
+  position: relative;
+  display: inline-block;
+  padding-inline: 0.2em;
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.ww-deal__x::before,
+.ww-deal__x::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.7em;
+  height: 0.12em;
+  margin-top: -0.06em;
+  margin-left: -0.85em;
+  border-radius: 999px;
+  background: var(--color-berry);
+}
+.ww-deal__x::before {
+  rotate: 38deg;
+}
+.ww-deal__x::after {
+  rotate: -38deg;
+}
+.ww-deal__now {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+.ww-deal__unit {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  opacity: 0.8;
+  white-space: nowrap;
+}

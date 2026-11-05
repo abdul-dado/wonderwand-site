@@ -38,6 +38,11 @@ Tailwind CSS 4, Sanity CMS (project `b9izpb2i`, dataset `production`, Studio at
 
 ## Gotchas
 
+- Public pages read Sanity at build time, API routes read it live. A Studio edit
+  to text, prices or dates only reaches the pages on the next deploy, while
+  `/api/book` uses the new price at once. Change prices together with a deploy.
+- Offer display: `pricing.childCompareAt` (crossed-out price, 0 hides it) and
+  `pricing.promoLabel`, rendered by `src/components/DealTicket.astro`.
 - Pages are prerendered at build time on UTC servers. Always pass
   `timeZone: 'Asia/Amman'` to `Intl.DateTimeFormat`. Anything time-sensitive
   (early-bird price switch) is also re-evaluated client-side in BookingForm.
@@ -53,6 +58,7 @@ Tailwind CSS 4, Sanity CMS (project `b9izpb2i`, dataset `production`, Studio at
 ## Event facts (current)
 
 Sat 21 Nov 2026 (postponed from 7 Nov), 11:00–13:30, Dafa Academy (روضة أكاديمية دفا), Kharja St, Amman.
-25 children, ages 3–8. Child 15 JOD early bird until 10 Nov 23:59 Amman, then
-20 JOD; adult free. Payment by CliQ to alias "Wonderwand", receipt via WhatsApp
+25 children, ages 3–8. Child 5 JOD ("Wonder Wand Friday" offer, 15 shown crossed
+out) until the event; adult free. Bookings made before the offer keep their saved
+amount. Payment by CliQ to alias "Wonderwand", receipt via WhatsApp
 962797784352. Hosts: Rahaf & Hayla (رهف وهيلا).

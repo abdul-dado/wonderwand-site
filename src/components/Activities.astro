@@ -1,30 +1,339 @@
 ---
-import { type Lang } from '@/i18n';
-import { site, tx, type SiteContent } from '@/data/site';
+import { useTranslations, type Lang } from '@/i18n';
+import { site, tx, activePromo, type SiteContent } from '@/data/site';
+import { formatMoney } from '@/lib/money';
+import DealTicket from './DealTicket.astro';
 
 interface Props {
   lang: Lang;
   content?: SiteContent;
 }
 const { lang, content = site } = Astro.props;
+const t = useTranslations(lang);
+const { status, pricing } = content.registration;
+const open = status === 'open';
+const promo = open ? activePromo(pricing) : null;
+const headline = promo
+  ? t('deal.headline').replace('{price}', formatMoney(promo.price, pricing.currency, lang))
+  : '';
 ---
 
-<section id="activities" class="mx-auto max-w-5xl scroll-mt-24 px-4 py-16">
-  <h2 class="text-2xl font-extrabold text-ink sm:text-3xl">
-    {lang === 'ar' ? 'ماذا سنفعل في الإيفنت؟' : 'What we’ll do at the event'}
-  </h2>
+<section id="activities" class="ww-fun scroll-mt-24 py-16">
+  <div class="ww-confetti" aria-hidden="true">
+    <span class="ww-c ww-c--dot"></span>
+    <span class="ww-c ww-c--ring"></span>
+    <span class="ww-c ww-c--tri"></span>
+    <span class="ww-c ww-c--star"></span>
+    <span class="ww-c ww-c--dot2"></span>
+    <span class="ww-c ww-c--ring2"></span>
+  </div>
 
-  <div class="mt-8 grid gap-4 sm:grid-cols-2">
-    {
-      content.activities.map((a) => (
-        <div class="rounded-2xl border border-grape-100 bg-white p-6 shadow-sm">
-          <div class="text-3xl" aria-hidden="true">
-            {a.emoji}
+  <div class="relative mx-auto max-w-5xl px-4">
+    <h2 class="text-2xl font-extrabold text-ink sm:text-3xl">
+      {t('activities.title')} <span aria-hidden="true">🎉</span>
+    </h2>
+    <p class="mt-3 max-w-2xl text-lg text-ink/75">
+      {t('activities.intro')} <span aria-hidden="true">❤️</span>
+    </p>
+
+    <ul class="ww-tiles mt-8">
+      {
+        content.activities.map((a) => {
+          const description = tx(a.description, lang);
+          return (
+            <li class="ww-tile">
+              <span class="ww-shape">
+                <span class="ww-shape__icon" aria-hidden="true">
+                  {a.emoji}
+                </span>
+              </span>
+              <h3 class="font-display text-base font-bold leading-snug text-ink sm:text-lg">
+                {tx(a.title, lang)}
+              </h3>
+              {description && <p class="text-sm text-ink/70">{description}</p>}
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <div class="ww-best">
+      <span class="ww-twinkle absolute end-[6%] top-4 text-star" aria-hidden="true">✦</span>
+      <span
+        class="ww-twinkle absolute bottom-4 start-[44%] text-sm text-sky-bright"
+        style="animation-delay:1.2s"
+        aria-hidden="true">✦</span
+      >
+
+      <div class="relative min-w-0">
+        {
+          headline && (
+            <h3 class="text-2xl font-extrabold sm:text-3xl">
+              {t('deal.best')} {headline}
+            </h3>
+          )
+        }
+        <p class="mt-2 max-w-xl text-cream/85">{t('activities.feesNote')}</p>
+      </div>
+
+      {
+        promo && (
+          <div class="ww-best__ticket relative">
+            <DealTicket lang={lang} content={content} />
           </div>
-          <h3 class="mt-3 font-display text-lg font-bold text-ink">{tx(a.title, lang)}</h3>
-          <p class="mt-1 text-ink/70">{tx(a.description, lang)}</p>
-        </div>
-      ))
-    }
+        )
+      }
+
+      {
+        open && (
+          <a
+            href="#book"
+            class="relative w-fit rounded-full bg-star px-7 py-3 text-base font-extrabold text-grape-900 transition hover:brightness-105 active:scale-95"
+          >
+            {t('cta.book')}
+          </a>
+        )
+      }
+    </div>
   </div>
 </section>
+
+<style>
+  .ww-fun {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fff 0%, #fff9ec 55%, var(--color-grape-50) 100%);
+  }
+
+  /* Loose party shapes in the section's corners. */
+  .ww-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ww-c {
+    position: absolute;
+    display: block;
+    opacity: 0.6;
+  }
+  .ww-c--dot {
+    top: 2.25rem;
+    inset-inline-end: 5%;
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 50%;
+    background: var(--color-bubblegum);
+  }
+  .ww-c--ring {
+    top: 5.5rem;
+    inset-inline-end: 12%;
+    width: 2rem;
+    height: 2rem;
+    border: 0.4rem solid var(--color-sky-bright);
+    border-radius: 50%;
+  }
+  .ww-c--tri {
+    top: 1.5rem;
+    inset-inline-end: 22%;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--color-star);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    rotate: 18deg;
+  }
+  .ww-c--star {
+    top: 45%;
+    inset-inline-start: 1.5%;
+    width: 1.75rem;
+    height: 1.75rem;
+    background: var(--color-nebula);
+    clip-path: polygon(50% 0, 62% 35%, 100% 38%, 70% 60%, 80% 96%, 50% 75%, 20% 96%, 30% 60%, 0 38%, 38% 35%);
+  }
+  .ww-c--dot2 {
+    top: 30%;
+    inset-inline-end: 1.5%;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: var(--color-star);
+  }
+  .ww-c--ring2 {
+    bottom: 3rem;
+    inset-inline-start: 3%;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 0.45rem solid var(--color-bubblegum);
+    border-radius: 50%;
+  }
+
+  .ww-tiles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ww-tile {
+    --c: var(--color-star);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 0.875rem;
+    border: 2px solid color-mix(in srgb, var(--c) 45%, white);
+    border-radius: 1.5rem;
+    background: color-mix(in srgb, var(--c) 16%, white);
+    text-align: center;
+    transition:
+      translate 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .ww-tile:hover {
+    translate: 0 -4px;
+    box-shadow: 0 16px 28px -16px color-mix(in srgb, var(--c) 75%, black);
+  }
+  /* An odd last tile fills its row on phones instead of sitting alone. */
+  .ww-tile:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* A coloured shape behind each icon; the icon itself stays upright. */
+  .ww-shape {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 4.75rem;
+    height: 4.75rem;
+    flex: none;
+  }
+  .ww-shape::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--c);
+    transition:
+      scale 0.25s ease,
+      rotate 0.25s ease;
+  }
+  .ww-tile:hover .ww-shape::before {
+    scale: 1.08;
+  }
+  .ww-shape__icon {
+    position: relative;
+    font-size: 2.1rem;
+    line-height: 1;
+  }
+
+  /* Paint splash */
+  .ww-tile:nth-child(9n + 1) .ww-shape::before {
+    border-radius: 62% 38% 54% 46% / 47% 58% 42% 53%;
+  }
+  /* Popcorn puff */
+  .ww-tile:nth-child(9n + 2) {
+    --c: var(--color-bubblegum);
+  }
+  .ww-tile:nth-child(9n + 2) .ww-shape::before {
+    background:
+      radial-gradient(circle at 28% 32%, var(--c) 27%, transparent 28%),
+      radial-gradient(circle at 72% 32%, var(--c) 27%, transparent 28%),
+      radial-gradient(circle at 28% 68%, var(--c) 27%, transparent 28%),
+      radial-gradient(circle at 72% 68%, var(--c) 27%, transparent 28%),
+      radial-gradient(circle at 50% 50%, var(--c) 36%, transparent 37%);
+  }
+  /* Lollipop round */
+  .ww-tile:nth-child(9n + 3) {
+    --c: var(--color-sky-bright);
+  }
+  .ww-tile:nth-child(9n + 3) .ww-shape::before {
+    border-radius: 50%;
+  }
+  /* Juice cup */
+  .ww-tile:nth-child(9n + 4) {
+    --c: #7fdcc0;
+  }
+  .ww-tile:nth-child(9n + 4) .ww-shape::before {
+    border-radius: 0.75rem 0.75rem 2.25rem 2.25rem;
+  }
+  /* Prize burst */
+  .ww-tile:nth-child(9n + 5) {
+    --c: var(--color-nebula);
+  }
+  .ww-tile:nth-child(9n + 5) .ww-shape::before {
+    inset: -0.35rem;
+    clip-path: polygon(50% 0, 64.5% 14.9%, 85.4% 14.6%, 85.1% 35.5%, 100% 50%, 85.1% 64.5%, 85.4% 85.4%, 64.5% 85.1%, 50% 100%, 35.5% 85.1%, 14.6% 85.4%, 14.9% 64.5%, 0 50%, 14.9% 35.5%, 14.6% 14.6%, 35.5% 14.9%);
+  }
+  /* Thinking hexagon */
+  .ww-tile:nth-child(9n + 6) {
+    --c: #ffb27a;
+  }
+  .ww-tile:nth-child(9n + 6) .ww-shape::before {
+    clip-path: polygon(25% 4%, 75% 4%, 100% 50%, 75% 96%, 25% 96%, 0 50%);
+  }
+  /* Tilted canvas */
+  .ww-tile:nth-child(9n + 7) {
+    --c: var(--color-lavender);
+  }
+  .ww-tile:nth-child(9n + 7) .ww-shape::before {
+    border-radius: 28%;
+    rotate: 12deg;
+  }
+  /* Stage diamond */
+  .ww-tile:nth-child(9n + 8) .ww-shape::before {
+    border-radius: 22%;
+    rotate: 45deg;
+    inset: 0.45rem;
+  }
+  /* Camera frame */
+  .ww-tile:nth-child(9n) {
+    --c: var(--color-bubblegum);
+  }
+  .ww-tile:nth-child(9n) .ww-shape::before {
+    border-radius: 1.5rem 1.5rem 1.5rem 0.4rem;
+  }
+
+  /* Offer band that leads straight into the booking form. */
+  .ww-best {
+    position: relative;
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 2rem;
+    padding: 1.75rem 1.5rem;
+    overflow: hidden;
+    border-radius: 1.75rem;
+    color: var(--color-cream);
+    background: linear-gradient(115deg, var(--color-grape-700), var(--color-grape-500) 55%, var(--color-nebula));
+  }
+
+  /* These would sit behind the tiles on a phone. */
+  @media (max-width: 767px) {
+    .ww-c--star,
+    .ww-c--dot2,
+    .ww-c--ring2 {
+      display: none;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .ww-tiles {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.125rem;
+    }
+    .ww-tile:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+    .ww-tile {
+      padding: 1.5rem 1.25rem;
+    }
+    .ww-best {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      column-gap: 2rem;
+      padding: 2.25rem 2.5rem;
+    }
+    .ww-best__ticket {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+</style>

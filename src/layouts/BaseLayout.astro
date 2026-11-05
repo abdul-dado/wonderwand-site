@@ -144,12 +144,12 @@ const { ga4Id, metaPixelId } = content.analytics;
       (function () {
         var ua = navigator.userAgent || '';
         if (!/Android/i.test(ua)) return;
-        if (/Instagram|FBAN|FBAV|FB_IAB|musical_ly|BytedanceWebview|TikTok|; wv)/i.test(ua)) return;
+        if (/Instagram|FBAN|FBAV|FB_IAB|musical_ly|BytedanceWebview|TikTok|; wv\)/i.test(ua)) return;
         document.addEventListener('click', function (e) {
           var a = e.target && e.target.closest && e.target.closest('a[href^="https://wa.me/"]');
           if (!a) return;
           var u = new URL(a.href);
-          var phone = u.pathname.replace(/[^d]/g, '');
+          var phone = u.pathname.replace(/[^\d]/g, '');
           if (!phone) return;
           var text = u.searchParams.get('text');
           var q = 'phone=' + phone + (text ? '&text=' + encodeURIComponent(text) : '');
