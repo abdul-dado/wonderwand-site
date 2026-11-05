@@ -108,7 +108,6 @@ export interface SiteContent {
     childAges: number[];
     cliqAlias: string;
     cliqName: L;
-    paymentWindowHours: number;
     paymentInstructions: L;
     capacityNote: L;
   };
@@ -343,10 +342,9 @@ export const site: SiteContent = {
     childAges: [3, 4, 5, 6, 7, 8],
     cliqAlias: 'Wonderwand',
     cliqName: { ar: 'Wonderwand', en: 'Wonderwand' },
-    paymentWindowHours: 24,
     paymentInstructions: {
-      ar: 'بعد ما تبعت الحجز بيطلعلك رقم حجز خاص فيك. حوّل المبلغ عبر CliQ إلى الاسم المستعار Wonderwand خلال 24 ساعة، ثم اضغط زر واتساب وابعتلنا صورة الإيصال — رقم حجزك بيكون جاهز بالرسالة.',
-      en: 'After you submit, you get your own booking reference. Transfer the amount via CliQ to the alias Wonderwand within 24 hours, then tap the WhatsApp button and send us a photo of the receipt — your reference is already in the message.',
+      ar: 'بعد ما تبعت الحجز بيطلعلك رقم حجز خاص فيك. حوّل المبلغ عبر CliQ إلى الاسم المستعار Wonderwand، ثم اضغط زر واتساب وأرسل صورة الإيصال ليتم تأكيد حجزك. رقم حجزك بيكون جاهز بالرسالة.',
+      en: 'After you submit, you get your own booking reference. Transfer the amount via CliQ to the alias Wonderwand, then tap the WhatsApp button and send a photo of the receipt to confirm your booking. Your reference is already in the message.',
     },
     capacityNote: {
       ar: 'المقاعد محدودة جدًا — 25 طفلًا فقط. الحجز حسب الأسبقية.',

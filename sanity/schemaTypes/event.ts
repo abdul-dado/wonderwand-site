@@ -65,12 +65,6 @@ export const registrationSettings = defineType({
     },
     { name: 'cliqAlias', title: 'CliQ alias', type: 'string' },
     { name: 'cliqName', title: 'Name shown on transfer', type: 'localeString' },
-    {
-      name: 'paymentWindowHours',
-      title: 'Payment window (hours)',
-      type: 'number',
-      initialValue: 24,
-    },
     { name: 'paymentInstructions', title: 'Payment instructions', type: 'localeText' },
     { name: 'capacityNote', title: 'Capacity note', type: 'localeString' },
     {

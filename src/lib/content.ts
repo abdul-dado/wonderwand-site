@@ -137,7 +137,6 @@ export async function loadContent(
           : d.registration.childAges,
       cliqAlias: str(r.cliqAlias, d.registration.cliqAlias),
       cliqName: loc(r.cliqName, d.registration.cliqName),
-      paymentWindowHours: str(r.paymentWindowHours, d.registration.paymentWindowHours),
       paymentInstructions: loc(r.paymentInstructions, d.registration.paymentInstructions),
       capacityNote: loc(r.capacityNote, d.registration.capacityNote),
     },

@@ -157,7 +157,6 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
   const lang = b.lang;
   const reg = content.registration;
   const alias = reg.cliqAlias || (lang === 'ar' ? 'سيُرسل لك قريباً' : 'sent to you shortly');
-  const hours = reg.paymentWindowHours;
   const waMsg =
     lang === 'ar'
       ? `مرحباً، هذا إيصال الدفع لحجز رقم ${b.ref} باسم ${b.parentName}.`
@@ -165,13 +164,13 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
   const waUrl = waHref(content.social.whatsapp, waMsg);
   const wa = waUrl
     ? `<a href="${waUrl}" style="display:inline-block;margin-top:8px;padding:10px 18px;border-radius:999px;background:#25d366;color:#fff;font-weight:800;text-decoration:none">${
-        lang === 'ar' ? 'ابعت الإيصال عبر واتساب' : 'Send the receipt on WhatsApp'
+        lang === 'ar' ? 'أرسل الإيصال الآن عبر واتساب' : 'Send the receipt now on WhatsApp'
       }</a>`
     : '';
 
   const inner =
     lang === 'ar'
-      ? `<p style="margin:0 0 16px;line-height:1.6">حجزك محفوظ <strong>مبدئياً</strong>. لتثبيته، أكمل الدفع خلال ${hours} ساعة.</p>
+      ? `<p style="margin:0 0 16px;line-height:1.6">حجزك محفوظ <strong>مبدئياً</strong>. حوّل المبلغ وأرسل الإيصال الآن ليتم تأكيد حجزك.</p>
          ${orderTable(b, lang)}
          <div style="background:#f4eeff;border-radius:12px;padding:16px;margin:16px 0;line-height:1.7">
            <strong>خطوات الدفع (CliQ):</strong><br>
@@ -180,7 +179,7 @@ export function bookingReceivedEmail(b: BookingRecord, content: SiteContent = si
            3) أرسل صورة الإيصال عبر واتساب مع رقم حجزك <strong>${b.ref}</strong><br>${wa}
          </div>
          <p style="margin:0;line-height:1.6"><strong>الحدث:</strong> ${esc(eventLine(content, lang))}</p>`
-      : `<p style="margin:0 0 16px;line-height:1.6">Your booking is <strong>provisionally held</strong>. Complete payment within ${hours} hours to confirm it.</p>
+      : `<p style="margin:0 0 16px;line-height:1.6">Your booking is <strong>provisionally held</strong>. Transfer the amount and send the receipt now to confirm your booking.</p>
          ${orderTable(b, lang)}
          <div style="background:#f4eeff;border-radius:12px;padding:16px;margin:16px 0;line-height:1.7">
            <strong>Payment steps (CliQ):</strong><br>
